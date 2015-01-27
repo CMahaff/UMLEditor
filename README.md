@@ -1,2 +1,2 @@
 # UMLEditor
-A Java UML Editor for CS 420.
+A Java-based UML Editor for CS 420.

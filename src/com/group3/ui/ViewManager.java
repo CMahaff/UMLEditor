@@ -28,6 +28,10 @@ public class ViewManager {
 	private JFrame windowFrame;
 	private UMLScene umlScene;
 	
+	//Arrays to provide the KeyEvents and KeyMasks for menu options
+	private int[] keyArray = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57};
+	private int[] maskArray = {8, 2, 1};
+	
 	/**
 	 * Create listeners for our windows which report back to this object.
 	 * 
@@ -72,22 +76,17 @@ public class ViewManager {
 		
 		JMenu file = new JMenu("File");
 		file.setFont(font);
-		/* setAccelerator sets keyboard shortcuts for the actions
-		 * VK_1 refers to the 1 key on the keyboard, VK_A refers to the A key on the keyboard, etc.
-		 * ALT_MASK refers to the ALT key. This can also be SHIFT_MASK or CTRL_MASK
-		 * So in the end something with VK_1 and ALT_MASK allows the user to press ALT+1 and complete that action 
-		 * You can change these to whatever we think works best.
-		 * Also I am not sure how to parameterize these in order to have them created in the createMenuItem method*/
-		file.add(createMenuItem("Open", font, menuListener)).setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
-		file.add(createMenuItem("Save", font, menuListener)).setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, ActionEvent.ALT_MASK));
-		file.add(createMenuItem("Exit", font, menuListener)).setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.ALT_MASK));
+		/* setAccelerator sets keyboard shortcuts for the actions*/
+		file.add(createMenuItem("Open", font, menuListener, keyArray[1], maskArray[0]));
+		file.add(createMenuItem("Save", font, menuListener, keyArray[2], maskArray[0]));
+		file.add(createMenuItem("Exit", font, menuListener, keyArray[3], maskArray[0]));
 		menuBar.add(file);
 		
 		JMenu add = new JMenu("Add");
 		add.setFont(font);
-		add.add(createMenuItem("Class Box", font, menuListener)).setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.CTRL_MASK));
-		add.add(createMenuItem("Connector", font, menuListener)).setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.CTRL_MASK));
-		add.add(createMenuItem("Some Other Thing", font, menuListener)).setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.CTRL_MASK));
+		add.add(createMenuItem("Class Box", font, menuListener, keyArray[1], maskArray[1]));
+		add.add(createMenuItem("Connector", font, menuListener, keyArray[2], maskArray[1]));
+		add.add(createMenuItem("Some Other Thing", font, menuListener, keyArray[3], maskArray[1]));
 		menuBar.add(add);
 		
 		return menuBar;
@@ -100,10 +99,11 @@ public class ViewManager {
 	 * @param listener listener for the option
 	 * @return a JMenuItem
 	 */
-	private JMenuItem createMenuItem(String text, Font font, MenuListener listener) {
+	private JMenuItem createMenuItem(String text, Font font, MenuListener listener, int key, int mask) {
 		/* KeyEvent.VK_T allows the user to toggle through the menu by pressing T
 		 * They have to be in the menu for this to work. */
 		JMenuItem item = new JMenuItem(text, KeyEvent.VK_T);
+		item.setAccelerator(KeyStroke.getKeyStroke(key ,mask));
 		item.addActionListener(listener);
 		item.setFont(font);
 		

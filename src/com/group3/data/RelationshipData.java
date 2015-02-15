@@ -5,6 +5,8 @@ package com.group3.data;
  */
 public class RelationshipData {
 	
+	//test
+	
 	public static final int BASIC = 0,
 							DEPENDENCY = 1,
 							AGGREGATION = 2,

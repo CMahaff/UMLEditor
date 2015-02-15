@@ -10,12 +10,13 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
+import java.awt.event.KeyEvent;
 
 import com.group3.Main;
 import com.group3.data.DataManager;
 import com.group3.ui.listener.MenuListener;
 import com.group3.ui.listener.WindowContainerListener;
-import com.sun.glass.events.KeyEvent;
+//import com.sun.glass.events.KeyEvent; not sure what this is for, gives error when uncommented
 
 /**
  * @author Connor Mahaffey
@@ -84,9 +85,11 @@ public class ViewManager {
 		
 		JMenu add = new JMenu("Add");
 		add.setFont(font);
+
 		add.add(createMenuItem("Class Box", font, menuListener, keyArray[1], maskArray[1]));
 		add.add(createMenuItem("Connector", font, menuListener, keyArray[2], maskArray[1]));
 		add.add(createMenuItem("Some Other Thing", font, menuListener, keyArray[3], maskArray[1]));
+
 		menuBar.add(add);
 		
 		return menuBar;

@@ -2,13 +2,16 @@ package com.group3.data;
 
 import java.util.ArrayList;
 
+
 /**
  * @author Connor Mahaffey
+ *         Brady Landis
  */
 public class ClassBoxData {
 	
 	private int posX, posY, width, height;
 	private ArrayList<String> boxes;
+	private String textfield;
 	
 	/**
 	 * Hold Class Box data for saving, reloading, etc.
@@ -26,6 +29,7 @@ public class ClassBoxData {
 		this.width = width;
 		this.height = height;
 		this.boxes = new ArrayList<String>();
+		this.textfield = "";
 	}
 	
 	/**
@@ -91,6 +95,28 @@ public class ClassBoxData {
 	public void setBox(int index, String content) {
 		this.boxes.set(index, content);
 	}
+	/**
+	 * @return returns a string to be used for saving
+	 * curent plan, ---Xpos Ypos width height
+	 *              ---text;
+	 * in the text any semicolon ->;<- will be written as ";"(or "\";\"")
+	 * other symbols will be implemented as nessasary
+	 */
+	public String toSave(){
+		String str = this.posX + " " + this.posY + " " + this.width + " " + this.height + "\n";
+		String saveText="";
+		for (int i=0; i<textfield.length(); i++){
+			if (textfield.charAt(i)!=';'){//looking for key character
+				savetext+=textfield.charAt(i);
+			}else{
+				savetext+="\";\"";
+			}
+			
+		}
+		
+		str+=saveText+"\n";
+		return str;
+	}
 	
 	public String toString() {
 		String output = "Pos X: " + this.posX + ", Pos Y: " + this.posY +
@@ -102,4 +128,5 @@ public class ClassBoxData {
 		
 		return output;
 	}
+	
 }

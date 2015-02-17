@@ -1,12 +1,16 @@
 package com.group3.data;
 
 import java.util.TreeMap;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.IOException;
 
 import com.group3.ui.ClassBox;
 import com.group3.ui.ViewManager;
 
 /**
  * @author Connor Mahaffey
+ *         Brady Landis
  */
 public class DataManager {
 	
@@ -94,6 +98,24 @@ public class DataManager {
 	 */
 	public void setViewManager(ViewManager viewManager) {
 		this.viewRef = viewManager;
+	}
+	/**
+	 * creates a text file that can later be read
+	 */
+	public void saveModel(String Filename){
+		ClassBoxData current;
+		String str="";
+		for (int i=0; i<index; i++){
+			current = classBoxes.get(i);
+			str+=current.toSave();
+		}
+		//this is just a test will be removed later
+		System.out.printline("heres what should be writen:\n" + str);
+		
+		PrintWriter savefile = new PrintWriter(Filename);
+		savefile.println(text);
+		
+		
 	}
 	
 	public String toString() {

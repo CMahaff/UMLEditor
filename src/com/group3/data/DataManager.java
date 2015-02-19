@@ -110,10 +110,10 @@ public class DataManager {
 			str+=current.toSave();
 		}
 		//this is just a test will be removed later
-		System.out.printline("heres what should be writen:\n" + str);
+		//System.out.printline("heres what should be writen:\n" + str);
 		
-		PrintWriter savefile = new PrintWriter(Filename);
-		savefile.println(text);
+		//PrintWriter savefile = new PrintWriter(Filename);
+		//savefile.println(text);
 		
 		
 	}

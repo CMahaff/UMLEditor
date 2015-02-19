@@ -9,7 +9,9 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+
 import java.awt.event.KeyEvent;
 
 import com.group3.Main;
@@ -20,6 +22,7 @@ import com.group3.ui.listener.WindowContainerListener;
 
 /**
  * @author Connor Mahaffey
+ * 		   David Mengel
  */
 public class ViewManager {
 	
@@ -114,7 +117,14 @@ public class ViewManager {
 	}
 	
 	public void addClassBox() {
-		ClassBox classBox = new ClassBox("Test");//TODO: remove
+		Object[] titleText = null;
+		String title = (String)JOptionPane.
+				showInputDialog(windowFrame, "Name of the Class Box?", 
+								"Class Box Name", JOptionPane.PLAIN_MESSAGE, 
+								null , titleText, null);
+
+		ClassBox classBox = new ClassBox(title);
+		classBox.createPopupMenu();
 		classBox.setLocation(30, 30);
 		classBox.setVisible(true);
 		classBox.setSize(200, 300);

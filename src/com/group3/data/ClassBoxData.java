@@ -107,9 +107,9 @@ public class ClassBoxData {
 		String saveText="";
 		for (int i=0; i<textfield.length(); i++){
 			if (textfield.charAt(i)!=';'){//looking for key character
-				savetext+=textfield.charAt(i);
+				saveText+=textfield.charAt(i);
 			}else{
-				savetext+="\";\"";
+				saveText+="\";\"";
 			}
 			
 		}

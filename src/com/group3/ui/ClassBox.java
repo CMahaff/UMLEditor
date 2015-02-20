@@ -6,7 +6,8 @@ import java.awt.event.MouseListener;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import com.group3.ui.listener.MenuListener;
+
+import com.group3.ui.listener.ClassBoxListener;
 import com.group3.ui.listener.PopupListener;
 
 
@@ -25,19 +26,20 @@ public class ClassBox extends JInternalFrame {
 	 * @param title title of the Class Box, listed in its window and its first field
 	 * @param id integer id used as a reference to this boxes data component
 	 */
-	public ClassBox(String title) {
-		
+	public ClassBox(String title, ViewManager viewRef) {
 		super(title, true); //JInternalFrame title, resizability
 		
+		createPopupMenu(viewRef);
 	}
 	
-	public void createPopupMenu() {
+	private void createPopupMenu(ViewManager viewRef) {
         JMenuItem menuItem;
-        MenuListener menuListener = new MenuListener(this);
+        ClassBoxListener classBoxListener = new ClassBoxListener(viewRef, this);
         //Create the popup menu.
         JPopupMenu popup = new JPopupMenu();
         menuItem = new JMenuItem("Delete Class Box");
-        menuItem.addActionListener(menuListener);
+        menuItem.addActionListener(classBoxListener);
+        menuItem.addComponentListener(classBoxListener);
         popup.add(menuItem);
  
         MouseListener popupListener = new PopupListener(popup);
@@ -61,6 +63,13 @@ public class ClassBox extends JInternalFrame {
 		if(this.id == 0 && id != 0) {
 			this.id = id;
 		}
+	}
+	
+	/**
+	 * @return the unique id that ties this object to its data member
+	 */
+	public int getId() {
+		return this.id;
 	}
 
 }

@@ -11,7 +11,6 @@ public class ClassBoxData {
 	
 	private int posX, posY, width, height;
 	private ArrayList<String> boxes;
-	private String textfield;
 	
 	/**
 	 * Hold Class Box data for saving, reloading, etc.
@@ -29,7 +28,6 @@ public class ClassBoxData {
 		this.width = width;
 		this.height = height;
 		this.boxes = new ArrayList<String>();
-		this.textfield = "";
 	}
 	
 	/**
@@ -104,17 +102,13 @@ public class ClassBoxData {
 	 */
 	public String toSave(){
 		String str = this.posX + " " + this.posY + " " + this.width + " " + this.height + "\n";
-		String saveText="";
-		for (int i=0; i<textfield.length(); i++){
-			if (textfield.charAt(i)!=';'){//looking for key character
-				saveText+=textfield.charAt(i);
-			}else{
-				saveText+="\";\"";
-			}
-			
+		String saveText = "";
+		for(String box : this.boxes){			
+			box.replaceAll(";", "\";\"");
+			saveText += box;
 		}
 		
-		str+=saveText+"\n";
+		str += saveText+"\n";
 		return str;
 	}
 	

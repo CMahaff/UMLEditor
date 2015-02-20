@@ -1,7 +1,7 @@
 package com.group3.ui;
 
 import java.awt.Font;
-import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyVetoException;
 
 import javax.swing.JDesktopPane;
@@ -12,11 +12,10 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
-import java.awt.event.KeyEvent;
-
 import com.group3.Main;
 import com.group3.data.DataManager;
 import com.group3.ui.listener.MenuListener;
+import com.group3.ui.listener.UMLSceneManager;
 import com.group3.ui.listener.WindowContainerListener;
 //import com.sun.glass.events.KeyEvent; not sure what this is for, gives error when uncommented
 
@@ -33,8 +32,8 @@ public class ViewManager {
 	private UMLScene umlScene;
 	
 	//Arrays to provide the KeyEvents and KeyMasks for menu options
-	private int[] keyArray = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57};
-	private int[] maskArray = {8, 2, 1};
+	private final int[] keyArray = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57};
+	private final int[] maskArray = {8, 2, 1};
 	
 	/**
 	 * Create listeners for our windows which report back to this object.
@@ -62,6 +61,9 @@ public class ViewManager {
 		/* UML Diagram Background and Windows */
 		this.umlScene = new UMLScene();
 		this.umlScene.setDragMode(JDesktopPane.LIVE_DRAG_MODE);
+		this.umlScene.setDoubleBuffered(true);
+		UMLSceneManager umlSceneManager = new UMLSceneManager();
+		this.umlScene.setDesktopManager(umlSceneManager);
 		this.windowFrame.add(umlScene);
 		
 		this.windowFrame.pack();
@@ -83,15 +85,15 @@ public class ViewManager {
 		/* setAccelerator sets keyboard shortcuts for the actions*/
 		file.add(createMenuItem("Open", font, menuListener, keyArray[1], maskArray[0]));
 		file.add(createMenuItem("Save", font, menuListener, keyArray[2], maskArray[0]));
-		file.add(createMenuItem("Exit", font, menuListener, keyArray[3], maskArray[0]));
+		file.add(createMenuItem("Save As", font, menuListener, keyArray[3], maskArray[0]));
+		file.add(createMenuItem("Exit", font, menuListener, keyArray[4], maskArray[0]));
 		menuBar.add(file);
 		
 		JMenu add = new JMenu("Add");
 		add.setFont(font);
 
 		add.add(createMenuItem("Class Box", font, menuListener, keyArray[1], maskArray[1]));
-		add.add(createMenuItem("Connector", font, menuListener, keyArray[2], maskArray[1]));
-		add.add(createMenuItem("Some Other Thing", font, menuListener, keyArray[3], maskArray[1]));
+		add.add(createMenuItem("Some Other Thing", font, menuListener, keyArray[2], maskArray[1]));
 
 		menuBar.add(add);
 		
@@ -122,9 +124,12 @@ public class ViewManager {
 				showInputDialog(windowFrame, "Name of the Class Box?", 
 								"Class Box Name", JOptionPane.PLAIN_MESSAGE, 
 								null , titleText, null);
+		if(title == null) {
+			//user hit cancel
+			return;
+		}
 
-		ClassBox classBox = new ClassBox(title);
-		classBox.createPopupMenu();
+		ClassBox classBox = new ClassBox(title, this);
 		classBox.setLocation(30, 30);
 		classBox.setVisible(true);
 		classBox.setSize(200, 300);
@@ -139,6 +144,12 @@ public class ViewManager {
 		} catch (PropertyVetoException e) {
 			System.err.println("Class Box could not be selected.");
 		}
+	}
+	
+	public void removeClassBox(ClassBox classBox) {
+		this.dataRef.removeClassBoxData(classBox.getId());
+		classBox.doDefaultCloseAction();
+		this.umlScene.remove(classBox);
 	}
 	
 	/**
@@ -164,5 +175,14 @@ public class ViewManager {
 	 */
 	public void setDataManager(DataManager dataManager) {
 		this.dataRef = dataManager;
+		UMLSceneManager sceneManager = (UMLSceneManager) this.umlScene.getDesktopManager();
+		sceneManager.setDataRef(dataManager);
+	}
+	
+	/**
+	 * @return Reference to the Data Manager
+	 */
+	public DataManager getDataManager() {
+		return this.dataRef;
 	}
 }

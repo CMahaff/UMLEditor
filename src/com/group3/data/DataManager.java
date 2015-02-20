@@ -1,9 +1,6 @@
 package com.group3.data;
 
 import java.util.TreeMap;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.io.IOException;
 
 import com.group3.ui.ClassBox;
 import com.group3.ui.ViewManager;
@@ -63,7 +60,8 @@ public class DataManager {
 	 * @param id unique id of the Class Box
 	 * @param classBox Class Box to pull data from
 	 */
-	public void updateClassBoxData(int id, ClassBox classBox) {
+	public void updateClassBoxData(ClassBox classBox) {
+		int id = classBox.getId();
 		ClassBoxData classBoxData = this.classBoxes.get(id);
 		if(classBoxData != null) {
 			classBoxData = 
@@ -73,6 +71,10 @@ public class DataManager {
 									 classBox.getHeight());
 			this.classBoxes.put(id, classBoxData);
 		}
+	}
+	
+	public void removeClassBoxData(int id) {
+		this.classBoxes.remove(id);
 	}
 	
 	/* TODO: Add relationship data option!!! */
@@ -100,14 +102,15 @@ public class DataManager {
 		this.viewRef = viewManager;
 	}
 	/**
-	 * creates a text file that can later be read
+	 * Writes save data to file
+	 * @param Filename filename to save as
 	 */
 	public void saveModel(String Filename){
 		ClassBoxData current;
-		String str="";
-		for (int i=0; i<index; i++){
+		String str = "";
+		for (int i = 0; i < index; i++){
 			current = classBoxes.get(i);
-			str+=current.toSave();
+			str += current.toSave();
 		}
 		//this is just a test will be removed later
 		//System.out.printline("heres what should be writen:\n" + str);

@@ -47,7 +47,7 @@ public class UMLScene extends JDesktopPane {
 			e.printStackTrace();
 		}
 		
-		repaint();
+		//repaint();
 	}
 	
 	public Dimension getPreferredSize() {

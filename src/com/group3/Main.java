@@ -1,9 +1,12 @@
 package com.group3;
 
+
 import javax.swing.SwingUtilities;
 
 import com.group3.data.DataManager;
 import com.group3.ui.ViewManager;
+import java.awt.Robot;
+
 
 /**
  * @author Connor Mahaffey
@@ -30,6 +33,7 @@ public class Main {
 				
 				dataManager.setViewManager(viewManager);
 				viewManager.setDataManager(dataManager);
+
 			}
 		});
 	}

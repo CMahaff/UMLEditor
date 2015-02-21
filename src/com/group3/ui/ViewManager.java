@@ -1,6 +1,7 @@
 package com.group3.ui;
 
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyVetoException;
 
@@ -10,6 +11,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
+
 import java.awt.event.KeyEvent;
 
 import com.group3.Main;
@@ -74,7 +76,7 @@ public class ViewManager {
 		Font font = new Font("Times New Roman", Font.PLAIN, 18);
 		
 		JMenuBar menuBar = new JMenuBar();
-		
+				
 		JMenu file = new JMenu("File");
 		file.setFont(font);
 		/* setAccelerator sets keyboard shortcuts for the actions*/
@@ -155,4 +157,6 @@ public class ViewManager {
 	public void setDataManager(DataManager dataManager) {
 		this.dataRef = dataManager;
 	}
+
 }
+

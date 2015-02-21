@@ -1,6 +1,15 @@
 package com.group3.data;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Map.Entry;
 import java.util.TreeMap;
+
+import javax.swing.JOptionPane;
 
 import com.group3.ui.ClassBox;
 import com.group3.ui.ViewManager;
@@ -45,7 +54,8 @@ public class DataManager {
 				new ClassBoxData(classBox.getLocation().x,
 								 classBox.getLocation().y,
 								 classBox.getWidth(),
-								 classBox.getHeight());
+								 classBox.getHeight(),
+								 new String[0]);
 		index++;
 		this.classBoxes.put(index, classBoxData);
 		
@@ -68,7 +78,8 @@ public class DataManager {
 					new ClassBoxData(classBox.getLocation().x,
 									 classBox.getLocation().y,
 									 classBox.getWidth(),
-									 classBox.getHeight());
+									 classBox.getHeight(),
+									 classBox.getArrayRepresentation());
 			this.classBoxes.put(id, classBoxData);
 		}
 	}
@@ -101,24 +112,72 @@ public class DataManager {
 	public void setViewManager(ViewManager viewManager) {
 		this.viewRef = viewManager;
 	}
+	
+	/**
+	 * Loads a save file into the data manager
+	 * @param file UML file to load
+	 */
+	public String[] loadModel(File file) {
+		//TODO: checks for invalid data
+		//clear existing data
+		this.index = 0;
+		this.classBoxes.clear();
+		this.relationships.clear();
+		
+		//load text
+		String content = "";
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			String s = "";
+			do {
+				content += s + "\n";
+				s = reader.readLine();
+			} while(s != null);
+			reader.close();
+			content = content.substring(1);
+		} catch (FileNotFoundException e) {
+			// TODO: Improve error handling
+			JOptionPane.showMessageDialog(null, 
+										  "Could not read from file system!", 
+										  "Error!",
+										  JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+			System.exit(1);
+		} catch (IOException e) {
+			// TODO: Improve error handling
+			JOptionPane.showMessageDialog(null, 
+										  "Problem reading from file system!", 
+										  "Error!",
+										  JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+			System.exit(1);
+		}
+	
+		return content.split("\n;;;\n");
+	}
+	
 	/**
 	 * Writes save data to file
-	 * @param Filename filename to save as
+	 * @param file file to save to
 	 */
-	public void saveModel(String Filename){
-		ClassBoxData current;
+	public void saveModel(File file){
 		String str = "";
-		for (int i = 0; i < index; i++){
-			current = classBoxes.get(i);
-			str += current.toSave();
+		for (Entry<Integer, ClassBoxData> entry : this.classBoxes.entrySet()){
+			str += entry.getValue().toSave();
 		}
-		//this is just a test will be removed later
-		//System.out.printline("heres what should be writen:\n" + str);
 		
-		//PrintWriter savefile = new PrintWriter(Filename);
-		//savefile.println(text);
-		
-		
+		try {
+			PrintWriter saveFile = new PrintWriter(file);
+			saveFile.println(str);
+			saveFile.close();
+		} catch (FileNotFoundException e) {
+			JOptionPane.showMessageDialog(null, 
+										  "Could not save to file system!", 
+										  "Error!",
+										  JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+			System.exit(1);
+		}		
 	}
 	
 	public String toString() {

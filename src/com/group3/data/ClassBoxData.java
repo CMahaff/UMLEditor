@@ -1,6 +1,5 @@
 package com.group3.data;
 
-import java.util.ArrayList;
 
 
 /**
@@ -10,7 +9,7 @@ import java.util.ArrayList;
 public class ClassBoxData {
 	
 	private int posX, posY, width, height;
-	private ArrayList<String> boxes;
+	private String[] boxes;
 	
 	/**
 	 * Hold Class Box data for saving, reloading, etc.
@@ -21,20 +20,18 @@ public class ClassBoxData {
 	 * @param posY y position of the ClassBox view
 	 * @param width width of the ClassBox view
 	 * @param height height of the ClassBox view
+	 * @param boxes array of strings representing the text sections of a class box
 	 */
-	public ClassBoxData(int posX, int posY, int width, int height) {
+	public ClassBoxData(int posX, int posY, int width, int height, String[] boxes) {
 		this.posX = posX;
 		this.posY = posY;
 		this.width = width;
 		this.height = height;
-		this.boxes = new ArrayList<String>();
+		this.boxes = boxes;
 	}
 	
-	/**
-	 * Add another box to the Class Box
-	 */
-	public void addBox() {
-		this.boxes.add("");
+	public String[] getBoxes() {
+		return this.boxes;
 	}
 	
 	/**
@@ -66,49 +63,23 @@ public class ClassBoxData {
 	}
 	
 	/**
-	 * Update position of a given Class Box
-	 * @param x x position
-	 * @param y y position
-	 */
-	public void updatePosition(int x, int y) {
-		this.posX = x;
-		this.posY = y;
-	}
-	
-	/**
-	 * Update the size of a given Class Box
-	 * @param width width of the box
-	 * @param height height of the box
-	 */
-	public void updateSize(int width, int height) {
-		this.width = width;
-		this.height = height;
-	}
-	
-	/**
-	 * Update the contents of a given box (with what was typed in the UI)
-	 * @param index index to change
-	 * @param content content to set it to
-	 */
-	public void setBox(int index, String content) {
-		this.boxes.set(index, content);
-	}
-	/**
-	 * @return returns a string to be used for saving
-	 * curent plan, ---Xpos Ypos width height
+	 * current plan, ---Xpos Ypos width height
 	 *              ---text;
 	 * in the text any semicolon ->;<- will be written as ";"(or "\";\"")
-	 * other symbols will be implemented as nessasary
+	 * other symbols will be implemented as necessary
+	 * @return returns a string to be used for saving
 	 */
+	// TODO: Block tampering!
 	public String toSave(){
-		String str = this.posX + " " + this.posY + " " + this.width + " " + this.height + "\n";
+		String str = this.posX + " " + this.posY + " " + 
+					 this.width + " " + this.height + ";";
 		String saveText = "";
 		for(String box : this.boxes){			
-			box.replaceAll(";", "\";\"");
-			saveText += box;
+			//box.replaceAll(";", "\";\"");
+			saveText += box + ";";
 		}
 		
-		str += saveText+"\n";
+		str += saveText + "\n;;;\n";
 		return str;
 	}
 	

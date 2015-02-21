@@ -6,6 +6,7 @@ import javax.swing.JComponent;
 import com.group3.data.DataManager;
 import com.group3.ui.ClassBox;
 
+@SuppressWarnings("serial")
 public class UMLSceneManager extends DefaultDesktopManager {
 	
 	private DataManager dataRef;

@@ -3,14 +3,18 @@ package com.group3.ui;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyVetoException;
+import java.io.File;
 
 import javax.swing.JDesktopPane;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.group3.Main;
 import com.group3.data.DataManager;
@@ -34,6 +38,8 @@ public class ViewManager {
 	//Arrays to provide the KeyEvents and KeyMasks for menu options
 	private final int[] keyArray = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57};
 	private final int[] maskArray = {8, 2, 1};
+	
+	private File saveFile = null;
 	
 	/**
 	 * Create listeners for our windows which report back to this object.
@@ -93,7 +99,7 @@ public class ViewManager {
 		add.setFont(font);
 
 		add.add(createMenuItem("Class Box", font, menuListener, keyArray[1], maskArray[1]));
-		add.add(createMenuItem("Some Other Thing", font, menuListener, keyArray[2], maskArray[1]));
+		add.add(createMenuItem("Connector", font, menuListener, keyArray[2], maskArray[1]));
 
 		menuBar.add(add);
 		
@@ -158,9 +164,79 @@ public class ViewManager {
 	public void doExit() {
 		//save here, when exit is set to true, it will exit *exactly then*
 		this.exit = true;
-		System.out.println(this.dataRef.toString()); //TODO: Remove this debug output
 		
 		System.exit(0);
+	}
+	
+	public void open() {
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle("Open UML Diagram");
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);		
+		
+		FileFilter filter = new FileNameExtensionFilter("UML Diagram Format", "uml");
+		fileChooser.setFileFilter(filter);
+		int choice = fileChooser.showOpenDialog(this.windowFrame);
+		
+		if(choice == JFileChooser.APPROVE_OPTION) {
+			File file = fileChooser.getSelectedFile();
+			if(!file.getAbsoluteFile().toString().toLowerCase().endsWith(".uml")) {
+				//TODO: Remove?
+				JOptionPane.showMessageDialog(null, 
+						  "Cannot open file that do not end in .uml!", 
+						  "Error!",
+						  JOptionPane.ERROR_MESSAGE);
+			} else {
+				//clear old boxes out
+				this.umlScene.removeAll();
+				
+				//load text data from file
+				this.saveFile = file;
+				String[] classBoxes = this.dataRef.loadModel(this.saveFile);
+				
+				//create new class boxes and add them back to the model
+				//extra entry a the bottom
+				for(int i = 0; i < classBoxes.length - 1; ++i) {
+					ClassBox classBox = new ClassBox("", this);
+					classBox.loadFromTextData(classBoxes[i]);
+					classBox.setVisible(true);
+					
+					int id = this.dataRef.addClassBoxData(classBox);
+					classBox.setId(id);
+					
+					this.umlScene.add(classBox);
+				}
+			}
+		}
+	}
+	
+	public void save() {
+		if(this.saveFile == null) {
+			saveAs();
+		} else {
+			dataRef.saveModel(this.saveFile);
+			JOptionPane.showMessageDialog(null, 
+										  this.saveFile.getName() + " saved!", 
+										  "Saved",
+										  JOptionPane.INFORMATION_MESSAGE);
+		}
+	}
+	
+	public void saveAs() {
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle("Save UML As");
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);		
+		
+		FileFilter filter = new FileNameExtensionFilter("UML Diagram Format", "uml");
+		fileChooser.setFileFilter(filter);
+		int choice = fileChooser.showSaveDialog(this.windowFrame);
+		
+		if(choice == JFileChooser.APPROVE_OPTION) {
+			this.saveFile = fileChooser.getSelectedFile();
+			if(!this.saveFile.getAbsoluteFile().toString().toLowerCase().endsWith(".uml")) {
+				this.saveFile = new File(this.saveFile.getAbsoluteFile().toString().concat(".uml"));
+			}
+			dataRef.saveModel(this.saveFile);
+		}
 	}
 	
 	/**

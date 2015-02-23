@@ -44,6 +44,9 @@ public class ViewManager {
 	
 	private File saveFile = null;
 	
+	//Vars needed for testing
+
+	
 	/**
 	 * Create listeners for our windows which report back to this object.
 	 * 
@@ -264,6 +267,6 @@ public class ViewManager {
 	public DataManager getDataManager() {
 		return this.dataRef;
 	}
-
+	
 }
 

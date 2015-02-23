@@ -62,6 +62,7 @@ public class ClassBoxData {
 		return this.posY;
 	}
 	
+	
 	/**
 	 * current plan, ---Xpos Ypos width height
 	 *              ---text;

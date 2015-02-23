@@ -2,24 +2,21 @@ package com.group3.test;
 
 
 import java.awt.AWTException;
-import java.awt.Point;
 import java.awt.Robot;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
+import java.sql.Time;
 
 import javax.swing.SwingUtilities;
 
-import com.group3Test.data.DataManager;
-import com.group3Test.ui.ClassBox;
-import com.group3Test.ui.ViewManager; 
-
 import org.junit.Test;
+import org.junit.Assert;
 
-import static org.junit.Assert.assertEquals;
+import com.group3.Main;
+import com.group3.data.DataManager;
+import com.group3.ui.ViewManager;
+
 
 public class RobotTest {
-
 	
 	public static final String version = "0.1 Alpha";
 	
@@ -30,33 +27,41 @@ public class RobotTest {
 	 * correctly.
 	 * 
 	 * @param args arguments passed to pain (accepts none)
-	 */
-	public static void main(String[] args) throws AWTException{
+	 
+	@Test
+	public void main() throws AWTException{
 	
-		new robotTest();
+		new RobotTest();
+		testKeyBinds
+		
 		
 	}
+*/
+	
+	@Test
+	public void testKeyBinds(){
+		DataManager dataManager = new DataManager();
+		ViewManager viewManager = new ViewManager();
+		
+		dataManager.setViewManager(viewManager);
+		viewManager.setDataManager(dataManager);
 
-	public robotTest() throws AWTException{
-		
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				DataManager dataManager = new DataManager();
-				ViewManager viewManager = new ViewManager();
-				
-				dataManager.setViewManager(viewManager);
-				viewManager.setDataManager(dataManager);
-				
-			}
-		});		
-	}
-	
-	
-	public void testKeyBinds(ViewManager viewManager, Robot robot){
+		Robot robot;
+		try {
+			robot = new Robot();
 			
-		createClassBox(48, robot);
-		System.out.println(viewManager.getAddClassBoxBool());
-
+			String before = dataManager.toString();
+			createClassBox(48, robot);
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+			String after = dataManager.toString();
+			Assert.assertTrue(before.equals(after));
+		} catch (AWTException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	//Methods to create the individual UI elements needed for testing.
@@ -121,12 +126,12 @@ public class RobotTest {
 		robot.keyRelease(KeyEvent.VK_S);
 		robot.keyPress(KeyEvent.VK_T);
 		robot.keyRelease(KeyEvent.VK_T);
-		robot.keyPress(i);
-		robot.keyRelease(i);
+		//robot.keyPress(i);
+		//robot.keyRelease(i);
 		robot.keyPress(KeyEvent.VK_ENTER);
 		robot.keyRelease(KeyEvent.VK_ENTER);
-		robot.keyPress(KeyEvent.VK_ENTER);
-		robot.keyRelease(KeyEvent.VK_ENTER);
+		//robot.keyPress(KeyEvent.VK_ENTER);
+		//robot.keyRelease(KeyEvent.VK_ENTER);
 	}
 	public static void testLaunch(Robot robot, ViewManager viewManager){
 		

@@ -1,4 +1,4 @@
-package com.group3Test;
+package com.group3.test;
 
 
 import java.awt.AWTException;
@@ -18,7 +18,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class robotTest{
+public class RobotTest {
 
 	
 	public static final String version = "0.1 Alpha";

@@ -4,6 +4,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+
+import javax.swing.JOptionPane;
 
 import com.group3.data.DataManager;
 import com.group3.ui.ClassBox;
@@ -11,22 +15,12 @@ import com.group3.ui.ViewManager;
 
 public class Test {
 	
-	public static void main(String[] args){
-		
-		saving();
-		
-	}
-	
 	@org.junit.Test
 	public void add() {
 		DataManager dataManager = new DataManager();
 		
 		ClassBox classBox = new ClassBox("Test", null);
-		
-		
 		String before = dataManager.toString();
-		
-		//This was "int id = dataManager.addClassBoxData(classBox);"
 		
 		dataManager.addClassBoxData(classBox);
 		assertFalse(before.equals(dataManager.toString()));
@@ -46,8 +40,7 @@ public class Test {
 	}
 	
 	@org.junit.Test
-	public void addTwoBoxes(){
-		
+	public void addTwoBoxes(){		
 		DataManager dataManager = new DataManager();
 		ClassBox classBox = new ClassBox("Test1", null);
 		ClassBox classBox2 = new ClassBox("Test2", null);
@@ -56,8 +49,7 @@ public class Test {
 		
 		dataManager.addClassBoxData(classBox);
 		dataManager.addClassBoxData(classBox2);
-		assertFalse(before.equals(dataManager.toString()));
-		
+		assertFalse(before.equals(dataManager.toString()));		
 	}
 
 	@org.junit.Test
@@ -96,43 +88,34 @@ public class Test {
 	}
 	
 	@org.junit.Test
-	public static void saving(){
-		File saveFile = null;
-		DataManager dataManager = new DataManager();
+	public void savingAndOpen(){
+		File saveFile = new File("test.uml");		
+			
+		DataManager dataManagerOne = new DataManager();
 		ClassBox classBox = new ClassBox("Test1", null);
 		ClassBox classBox2 = new ClassBox("Test2", null);
 		
-		dataManager.addClassBoxData(classBox);
-		dataManager.addClassBoxData(classBox2);
+		dataManagerOne.addClassBoxData(classBox);
+		dataManagerOne.addClassBoxData(classBox2);
 		
-		//Error here
-		//Says that saveFile is null, which is true but I am not sure why that is an issue
-		//If the user is saving to a new file that file would also be null correct?
-		dataManager.saveModel(saveFile);
+		String dataManagerOneString = dataManagerOne.toString();
 		
-		String fileString = saveFile.toString();
+		dataManagerOne.saveModel(saveFile);
 		
-		assertTrue(fileString.equals(dataManager.toString()));
+		DataManager dataManagerTwo = new DataManager();
+				
+		String[] classBoxes = dataManagerTwo.loadModel(saveFile);
+		for(int i = 0; i < classBoxes.length - 1; ++i) {
+			ClassBox classBox1 = new ClassBox("", null);		
+			int id = dataManagerTwo.addClassBoxData(classBox1);
+			classBox1.setId(id);
+			
+		}	
 		
-		
+		String dataManagerTwoString = dataManagerTwo.toString();
+	
+		assertTrue(dataManagerOneString.equals(dataManagerTwoString));		
 		
 	}
 	
-	@org.junit.Test
-	public void something2(){
-		
-		
-	}
-	
-	@org.junit.Test
-	public void something3(){
-		
-		
-	}
-	
-	@org.junit.Test
-	public void something4(){
-		
-		
-	}
 }

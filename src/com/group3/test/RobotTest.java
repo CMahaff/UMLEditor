@@ -4,14 +4,10 @@ package com.group3.test;
 import java.awt.AWTException;
 import java.awt.Robot;
 import java.awt.event.KeyEvent;
-import java.sql.Time;
 
-import javax.swing.SwingUtilities;
-
-import org.junit.Test;
 import org.junit.Assert;
+import org.junit.Test;
 
-import com.group3.Main;
 import com.group3.data.DataManager;
 import com.group3.ui.ViewManager;
 

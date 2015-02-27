@@ -4,14 +4,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-
-import javax.swing.JOptionPane;
 
 import com.group3.data.DataManager;
 import com.group3.ui.ClassBox;
-import com.group3.ui.ViewManager;
 
 public class Test {
 	
@@ -73,7 +68,6 @@ public class Test {
 	@org.junit.Test
 	public void addThenMoveAndResizeClassBox(){
 		DataManager dataManager = new DataManager();
-		ViewManager viewManager = new ViewManager();
 		ClassBox classBox = new ClassBox("Test", null);
 		
 		dataManager.addClassBoxData(classBox);

@@ -55,6 +55,7 @@ public class ClassBoxListener implements ActionListener, ComponentListener, Focu
 	@Override
 	public void componentResized(ComponentEvent e) {
 		this.viewManager.getDataManager().updateClassBoxData(this.classBox);
+		this.viewManager.repaintUML();
 	}
 
 	@Override

@@ -153,6 +153,8 @@ public class ViewManager {
 		} catch (PropertyVetoException e) {
 			System.err.println("Class Box could not be selected.");
 		}
+		
+		this.umlScene.repaint();
 	}
 	
 	public void removeClassBox(ClassBox classBox) {
@@ -208,6 +210,7 @@ public class ViewManager {
 					
 					this.umlScene.add(classBox);
 				}
+				this.umlScene.repaint();
 			}
 		}
 	}
@@ -255,7 +258,8 @@ public class ViewManager {
 	public void setDataManager(DataManager dataManager) {
 		this.dataRef = dataManager;
 		UMLSceneManager sceneManager = (UMLSceneManager) this.umlScene.getDesktopManager();
-		sceneManager.setDataRef(dataManager);
+		sceneManager.setDataRef(dataManager, this.umlScene);
+		this.umlScene.setDataManager(dataManager);
 	}
 	
 	/**
@@ -263,6 +267,15 @@ public class ViewManager {
 	 */
 	public DataManager getDataManager() {
 		return this.dataRef;
+	}
+	
+	/**
+	 * Calls the repaint method on the UML diagram.
+	 * 
+	 * This is used to ensure arrows are redrawn as window components change.
+	 */
+	public void repaintUML() {
+		this.umlScene.repaint();
 	}
 	
 }

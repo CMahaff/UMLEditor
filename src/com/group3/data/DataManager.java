@@ -91,19 +91,18 @@ public class DataManager {
 	/* TODO: Add relationship data option!!! */
 	
 	/**
-	 * @param id id of the Class Box Data object
-	 * @return the object if found, otherwise null
+	 * @return the collection of Class Box data
 	 */
-	public ClassBoxData getClassBoxData(int id) {
-		return this.classBoxes.get(id);
+	public TreeMap<Integer, ClassBoxData> getClassBoxData() {
+		return this.classBoxes;
 	}
 	
 	/**
 	 * @param id id of the Relationship Data object
 	 * @return the object if found, otherwise null
 	 */
-	public RelationshipData getRelationshipData(int id) {
-		return this.relationships.get(id);
+	public TreeMap<Integer, RelationshipData> getRelationshipData() {
+		return this.relationships;
 	}
 	
 	/**

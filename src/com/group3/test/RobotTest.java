@@ -39,7 +39,6 @@ public class RobotTest {
 		DataManager dataManager = new DataManager();
 		ViewManager viewManager = new ViewManager();
 		
-		dataManager.setViewManager(viewManager);
 		viewManager.setDataManager(dataManager);
 
 		Robot robot;

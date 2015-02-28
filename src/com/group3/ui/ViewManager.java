@@ -161,6 +161,7 @@ public class ViewManager {
 		this.dataRef.removeClassBoxData(classBox.getId());
 		classBox.doDefaultCloseAction();
 		this.umlScene.remove(classBox);
+		this.umlScene.repaint();
 	}
 	
 	/**

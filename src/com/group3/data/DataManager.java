@@ -20,8 +20,6 @@ import com.group3.ui.ViewManager;
  */
 public class DataManager {
 	
-	private ViewManager viewRef;
-	
 	private int index;
 	private TreeMap<Integer, ClassBoxData> classBoxes;
 	private TreeMap<Integer, RelationshipData> relationships;
@@ -103,13 +101,6 @@ public class DataManager {
 	 */
 	public TreeMap<Integer, RelationshipData> getRelationshipData() {
 		return this.relationships;
-	}
-	
-	/**
-	 * @param viewManager reference to the View Manager
-	 */
-	public void setViewManager(ViewManager viewManager) {
-		this.viewRef = viewManager;
 	}
 	
 	/**

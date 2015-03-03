@@ -23,12 +23,16 @@ public class MenuListener implements ActionListener {
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		if(e.getActionCommand().equals("Open")) {
+	public void actionPerformed(ActionEvent e) {		
+		if(e.getActionCommand().equals("New")) {
+			this.viewManager.newUML();
+		} else if(e.getActionCommand().equals("Open")) {
 			this.viewManager.open();
 		} else if(e.getActionCommand().equals("Save")) {
+			this.viewManager.updateSelectedClassBoxChanges();
 			this.viewManager.save();
 		} else if(e.getActionCommand().equals("Save As")) {
+			this.viewManager.updateSelectedClassBoxChanges();
 			this.viewManager.saveAs();
 		} else if(e.getActionCommand().equals("Exit")) {
 			this.viewManager.doExit();

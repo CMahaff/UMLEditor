@@ -11,9 +11,6 @@ import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
 
-import com.group3.ui.ClassBox;
-import com.group3.ui.ViewManager;
-
 /**
  * @author Connor Mahaffey
  *         Brady Landis
@@ -28,10 +25,7 @@ public class DataManager {
 	 * Manages all data for saving, reloading, etc. using a system
 	 * of unique integer id's.
 	 * 
-	 * TODO: Update data as it changes, including removing data if a Class Box is deleted.
-	 * TODO: Add save and load abilities.
 	 * TODO: Be able to hand undo's with a stack-like structure?
-	 * 
 	 */
 	public DataManager() {
 		index = 0;
@@ -42,18 +36,38 @@ public class DataManager {
 	/**
 	 * Add new Class Box Data to the Data Manager
 	 * 
-	 * TODO: Add label information.
+	 * @param locX the x location of the Class Box
+	 * @param locY the y location of the Class Box
+	 * @param width the width of the Class Box
+	 * @param height the height of the Class Box
+	 * @param data the data inside the Class Box sections
 	 * 
-	 * @param classBox the Class Box this data belongs to
 	 * @return id for this new Class Box
 	 */
-	public int addClassBoxData(ClassBox classBox) {
-		ClassBoxData classBoxData = 
-				new ClassBoxData(classBox.getLocation().x,
-								 classBox.getLocation().y,
-								 classBox.getWidth(),
-								 classBox.getHeight(),
-								 new String[0]);
+	public int addClassBoxData(int locX, int locY, int width, int height, String[] data) {
+		ClassBoxData classBoxData = new ClassBoxData(locX, locY,
+													 width, height, data);
+		index++;
+		this.classBoxes.put(index, classBoxData);
+		
+		return index;
+	}
+	
+	/**
+	 * Add new Class Box Data to the Data Manager
+	 * 
+	 * @param locX the x location of the Class Box
+	 * @param locY the y location of the Class Box
+	 * @param width the width of the Class Box
+	 * @param height the height of the Class Box
+	 * @param title the title of the new Class Box
+	 * 
+	 * @return id for this new Class Box
+	 */
+	public int addClassBoxData(int locX, int locY, int width, int height, String title) {
+		ClassBoxData classBoxData = new ClassBoxData(locX, locY,
+													 width, height,
+													 new String[]{ title, "" });
 		index++;
 		this.classBoxes.put(index, classBoxData);
 		
@@ -65,23 +79,51 @@ public class DataManager {
 	 * 
 	 * If no data exists with that id, no changes are made.
 	 * 
-	 * @param id unique id of the Class Box
-	 * @param classBox Class Box to pull data from
+	 * @param id the unique id of the Class Box
+	 * @param locX the updated x location of the Class Box
+	 * @param locY the updated y location of the Class Box
+	 * @param width the updated width of the Class Box
+	 * @param height the updated height of the Class Box
+	 * @param data the updated String content of the Class Box
 	 */
-	public void updateClassBoxData(ClassBox classBox) {
-		int id = classBox.getId();
+	public void updateClassBoxData(int id, int locX, int locY, int width, int height, String[] data) {
 		ClassBoxData classBoxData = this.classBoxes.get(id);
 		if(classBoxData != null) {
-			classBoxData = 
-					new ClassBoxData(classBox.getLocation().x,
-									 classBox.getLocation().y,
-									 classBox.getWidth(),
-									 classBox.getHeight(),
-									 classBox.getArrayRepresentation());
-			this.classBoxes.put(id, classBoxData);
+			classBoxData.setX(locX);
+			classBoxData.setY(locY);
+			classBoxData.setWidth(width);
+			classBoxData.setHeight(height);
+			classBoxData.setBoxes(data);
 		}
 	}
 	
+	/**
+	 * Update Class Box Data corresponding to a given id.
+	 * 
+	 * This is a performance method. As we drag text boxes across the screen
+	 * we do not want to be creating new text representation arrays for each
+	 * pixel we move.
+	 * 
+	 * @param id the unique id of the Class Box
+	 * @param locX the updated x location of the Class Box
+	 * @param locY the updated y location of the Class Box
+	 * @param width the updated width of the Class Box
+	 * @param height the updated height of the Class Box
+	 */
+	public void updateClassBoxDataWindow(int id, int locX, int locY, int width, int height) {
+		ClassBoxData classBoxData = this.classBoxes.get(id);
+		if(classBoxData != null) {
+			classBoxData.setX(locX);
+			classBoxData.setY(locY);
+			classBoxData.setWidth(width);
+			classBoxData.setHeight(height);
+		}
+	}
+	
+	/**
+	 * Remove a Class Box with a given id
+	 * @param id the id of the Class Box to remove
+	 */
 	public void removeClassBoxData(int id) {
 		this.classBoxes.remove(id);
 	}
@@ -170,6 +212,19 @@ public class DataManager {
 		}		
 	}
 	
+	/**
+	 * Removes all data stored in the Data Manager
+	 */
+	public void clearData() {
+		this.index = 0;
+		this.classBoxes.clear();
+		this.relationships.clear();
+	}
+	
+	/**
+	 * Helpful tool for debugging. Prints the contents of the Class Boxes
+	 * and Relationships
+	 */
 	public String toString() {
 		return this.classBoxes.toString() + 
 			   "\n" +

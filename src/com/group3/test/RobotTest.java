@@ -37,9 +37,7 @@ public class RobotTest {
 	@Test
 	public void testKeyBinds(){
 		DataManager dataManager = new DataManager();
-		ViewManager viewManager = new ViewManager();
-		
-		viewManager.setDataManager(dataManager);
+		new ViewManager(dataManager);
 
 		Robot robot;
 		try {

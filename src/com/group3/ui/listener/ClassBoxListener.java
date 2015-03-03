@@ -9,6 +9,7 @@ import java.awt.event.FocusListener;
 
 import javax.swing.JOptionPane;
 
+import com.group3.data.DataManager;
 import com.group3.ui.ClassBox;
 import com.group3.ui.ViewManager;
 
@@ -54,7 +55,14 @@ public class ClassBoxListener implements ActionListener, ComponentListener, Focu
 
 	@Override
 	public void componentResized(ComponentEvent e) {
-		this.viewManager.getDataManager().updateClassBoxData(this.classBox);
+		if(this.viewManager == null) {
+			return;
+		}
+		
+		DataManager dm = this.viewManager.getDataManager();
+		dm.updateClassBoxDataWindow(this.classBox.getId(), 
+									this.classBox.getX(), this.classBox.getY(), 
+									this.classBox.getWidth(), this.classBox.getHeight());
 		this.viewManager.repaintUML();
 	}
 
@@ -62,12 +70,14 @@ public class ClassBoxListener implements ActionListener, ComponentListener, Focu
 	public void componentShown(ComponentEvent e) {}
 
 	@Override
-	public void focusGained(FocusEvent arg0) {}
+	public void focusGained(FocusEvent e) {}
 
 	@Override
-	public void focusLost(FocusEvent arg0) {
-		this.viewManager.getDataManager().updateClassBoxData(this.classBox);
-		//TODO: On shortcut key press, focus not lost, so text not saved to latest version?
+	public void focusLost(FocusEvent e) {
+		this.viewManager.getDataManager().updateClassBoxData(this.classBox.getId(), 
+														 	 this.classBox.getX(), this.classBox.getY(), 
+														 	 this.classBox.getWidth(), this.classBox.getHeight(), 
+														 	 this.classBox.getArrayRepresentation());
 	}
 
 }

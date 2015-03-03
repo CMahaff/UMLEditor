@@ -17,6 +17,10 @@ public class UMLScene extends JDesktopPane {
 	
 	private DataManager dataManager;
 	
+	public UMLScene(DataManager dataManager) {
+		this.dataManager = dataManager;
+	}
+	
 	/**
 	 * 
 	 * Repaint will be called on this object whenever Class Boxes are moved.
@@ -42,9 +46,5 @@ public class UMLScene extends JDesktopPane {
 	
 	public Dimension getPreferredSize() {
 		return new Dimension(800, 600);
-	}
-	
-	public void setDataManager(DataManager dataManager) {
-		this.dataManager = dataManager;
 	}
 }

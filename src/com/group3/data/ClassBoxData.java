@@ -30,6 +30,13 @@ public class ClassBoxData {
 		this.boxes = boxes;
 	}
 	
+	/**
+	 * Returns the sections of the Class Box as a String array, where index 0 represents
+	 * the title of the window, and all subsequent entries represent different
+	 * sections of the Class Box.
+	 * 
+	 * @return a String array representing the text in different sections of the Class Box
+	 */
 	public String[] getBoxes() {
 		return this.boxes;
 	}
@@ -62,6 +69,40 @@ public class ClassBoxData {
 		return this.posY;
 	}
 	
+	/**
+	 * @param data a string array representing the sections of the Class Box
+	 */
+	public void setBoxes(String[] data) {
+		this.boxes = data;
+	}
+	
+	/**
+	 * @param height the new height of the Class Box
+	 */
+	public void setHeight(int height) {
+		this.height = height;
+	}
+	
+	/**
+	 * @param width the new width of the Class Box
+	 */
+	public void setWidth(int width) {
+		this.width = width;
+	}
+	
+	/**
+	 * @param x the new x position of the Class Box
+	 */
+	public void setX(int x) {
+		this.posX = x;
+	}
+	
+	/**
+	 * @param y the new y position of the Class Box
+	 */
+	public void setY(int y) {
+		this.posY = y;
+	}
 	
 	/**
 	 * current plan, ---Xpos Ypos width height
@@ -84,6 +125,9 @@ public class ClassBoxData {
 		return str;
 	}
 	
+	/**
+	 * Prints some debugging information about the Class Box
+	 */
 	public String toString() {
 		String output = "Pos X: " + this.posX + ", Pos Y: " + this.posY +
 						", Width: " + this.width + ", Height: " + this.height + "\n";

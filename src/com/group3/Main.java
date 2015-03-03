@@ -13,7 +13,7 @@ import com.group3.ui.ViewManager;
  */
 public class Main {
 	
-	public static final String version = "0.1 Alpha";
+	public static final String version = "0.2 Alpha";
 
 	/**
 	 * 
@@ -29,10 +29,7 @@ public class Main {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				DataManager dataManager = new DataManager();
-				ViewManager viewManager = new ViewManager();
-				
-				viewManager.setDataManager(dataManager);
-
+				new ViewManager(dataManager);
 			}
 		});
 	}

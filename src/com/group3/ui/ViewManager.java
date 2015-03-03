@@ -50,7 +50,10 @@ public class ViewManager {
 	 * Create our main window, which has a Menu Bar and a Window Manager
 	 * for our UML Diagram itself.
 	 */
-	public ViewManager() {
+	public ViewManager(DataManager dataRef) {
+		
+		this.dataRef = dataRef;
+		
 		/* Listeners */
 		WindowContainerListener windowContainerListener 
 			= new WindowContainerListener(this);
@@ -68,10 +71,10 @@ public class ViewManager {
 		this.windowFrame.setJMenuBar(createMenuBar(menuListener));
 		
 		/* UML Diagram Background and Windows */
-		this.umlScene = new UMLScene();
+		this.umlScene = new UMLScene(this.dataRef);
 		this.umlScene.setDragMode(JDesktopPane.LIVE_DRAG_MODE);
 		this.umlScene.setDoubleBuffered(true);
-		UMLSceneManager umlSceneManager = new UMLSceneManager();
+		UMLSceneManager umlSceneManager = new UMLSceneManager(this.dataRef, this.umlScene);
 		this.umlScene.setDesktopManager(umlSceneManager);
 		this.windowFrame.add(umlScene);
 		
@@ -92,17 +95,25 @@ public class ViewManager {
 		JMenu file = new JMenu("File");
 		file.setFont(font);
 		/* setAccelerator sets keyboard shortcuts for the actions*/
-		file.add(createMenuItem("Open", font, menuListener, keyArray[1], maskArray[0]));
-		file.add(createMenuItem("Save", font, menuListener, keyArray[2], maskArray[0]));
-		file.add(createMenuItem("Save As", font, menuListener, keyArray[3], maskArray[0]));
-		file.add(createMenuItem("Exit", font, menuListener, keyArray[4], maskArray[0]));
+		file.add(createMenuItem("New", font, menuListener, keyArray[1], maskArray[0]));
+		file.add(createMenuItem("Open", font, menuListener, keyArray[2], maskArray[0]));
+		file.add(createMenuItem("Save", font, menuListener, keyArray[3], maskArray[0]));
+		file.add(createMenuItem("Save As", font, menuListener, keyArray[4], maskArray[0]));
+		file.add(createMenuItem("Exit", font, menuListener, keyArray[5], maskArray[0]));
 		menuBar.add(file);
 		
 		JMenu add = new JMenu("Add");
 		add.setFont(font);
 
 		add.add(createMenuItem("Class Box", font, menuListener, keyArray[1], maskArray[1]));
-		add.add(createMenuItem("Connector", font, menuListener, keyArray[2], maskArray[1]));
+		JMenuItem relationship = new JMenu("Relationship");
+		relationship.setFont(font);
+		relationship.add(createMenuItem("Basic", font, menuListener, keyArray[2], maskArray[1]));
+		relationship.add(createMenuItem("Dependency", font, menuListener, keyArray[3], maskArray[1]));
+		relationship.add(createMenuItem("Aggregation", font, menuListener, keyArray[4], maskArray[1]));
+		relationship.add(createMenuItem("Composition", font, menuListener, keyArray[5], maskArray[1]));
+		relationship.add(createMenuItem("Generalization", font, menuListener, keyArray[6], maskArray[1]));
+		add.add(relationship);
 
 		menuBar.add(add);
 		
@@ -127,6 +138,10 @@ public class ViewManager {
 		return item;
 	}
 	
+	/**
+	 * Runs the UI routine to create a Class Box,
+	 * including prompting for the name
+	 */
 	public void addClassBox() {
 		Object[] titleText = null;
 		String title = (String)JOptionPane.
@@ -143,7 +158,8 @@ public class ViewManager {
 		classBox.setVisible(true);
 		classBox.setSize(200, 300);
 		
-		int id = this.dataRef.addClassBoxData(classBox);
+		int id = this.dataRef.addClassBoxData(classBox.getX(), classBox.getY(), 
+											  classBox.getWidth(), classBox.getHeight(), title);
 		classBox.setId(id);
 		
 		this.umlScene.add(classBox);
@@ -157,6 +173,10 @@ public class ViewManager {
 		this.umlScene.repaint();
 	}
 	
+	/**
+	 * Removes a Class Box from the view
+	 * @param classBox the Class Box to remove
+	 */
 	public void removeClassBox(ClassBox classBox) {
 		this.dataRef.removeClassBoxData(classBox.getId());
 		classBox.doDefaultCloseAction();
@@ -174,6 +194,20 @@ public class ViewManager {
 		System.exit(0);
 	}
 	
+	/**
+	 * Runs the UI routines to open a new (empty) UML diagram.
+	 */
+	public void newUML() {
+		this.umlScene.removeAll();
+		this.dataRef.clearData();
+		this.umlScene.repaint();
+		this.saveFile = null;
+		this.windowFrame.setTitle("UML Editor " + Main.version);
+	}
+	
+	/**
+	 * Runs the UI routines to open a UML diagram.
+	 */
 	public void open() {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setDialogTitle("Open UML Diagram");
@@ -197,6 +231,7 @@ public class ViewManager {
 				
 				//load text data from file
 				this.saveFile = file;
+				this.windowFrame.setTitle("UML Editor " + Main.version + " - " + file.getName());
 				String[] classBoxes = this.dataRef.loadModel(this.saveFile);
 				
 				//create new class boxes and add them back to the model
@@ -206,7 +241,9 @@ public class ViewManager {
 					classBox.loadFromTextData(classBoxes[i]);
 					classBox.setVisible(true);
 					
-					int id = this.dataRef.addClassBoxData(classBox);
+					int id = this.dataRef.addClassBoxData(classBox.getX(), classBox.getY(),
+														  classBox.getWidth(), classBox.getHeight(), 
+														  classBox.getArrayRepresentation());
 					classBox.setId(id);
 					
 					this.umlScene.add(classBox);
@@ -216,6 +253,14 @@ public class ViewManager {
 		}
 	}
 	
+	/**
+	 * Runs the UI routine to save a UML diagram
+	 * that we already opened and/or saved. This
+	 * will not prompt for a location to save.
+	 * 
+	 * If we don't have a name to save the file as,
+	 * this will call saveAs().
+	 */
 	public void save() {
 		if(this.saveFile == null) {
 			saveAs();
@@ -228,6 +273,10 @@ public class ViewManager {
 		}
 	}
 	
+	/**
+	 * Runs the UI routines to save a file
+	 * with a given name.
+	 */
 	public void saveAs() {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setDialogTitle("Save UML As");
@@ -243,6 +292,25 @@ public class ViewManager {
 				this.saveFile = new File(this.saveFile.getAbsoluteFile().toString().concat(".uml"));
 			}
 			dataRef.saveModel(this.saveFile);
+			this.windowFrame.setTitle("UML Editor " + Main.version + " - " + this.saveFile.getName());
+		}
+	}
+	
+	/**
+	 * Many events trigger the view to update the data representation of the Class Box. For
+	 * text entry, this is a FocusLost event, meaning the contents of the text will be saved
+	 * when you select another text area, another text box, or open the save menu.
+	 * 
+	 * This fails when a key binding is used to save the UML diagram, the keybinding
+	 * does not trigger a FocusChange event. This method will find the currently selected
+	 * Class Box and force its data to update before saving.
+	 */
+	public void updateSelectedClassBoxChanges() {
+		ClassBox classBox = (ClassBox) this.umlScene.getSelectedFrame();
+		if(classBox != null) {
+			this.dataRef.updateClassBoxData(classBox.getId(), classBox.getX(), classBox.getY(), 
+											classBox.getWidth(), classBox.getHeight(), 
+											classBox.getArrayRepresentation());
 		}
 	}
 	
@@ -251,16 +319,6 @@ public class ViewManager {
 	 */
 	public boolean isExiting() {
 		return this.exit;
-	}
-	
-	/**
-	 * @param dm reference to the Data Manager
-	 */
-	public void setDataManager(DataManager dataManager) {
-		this.dataRef = dataManager;
-		UMLSceneManager sceneManager = (UMLSceneManager) this.umlScene.getDesktopManager();
-		sceneManager.setDataRef(dataManager, this.umlScene);
-		this.umlScene.setDataManager(dataManager);
 	}
 	
 	/**

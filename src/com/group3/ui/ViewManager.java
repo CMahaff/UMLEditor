@@ -88,6 +88,9 @@ public class ViewManager {
 	 * @return the JMenuBar for the program
 	 */
 	private JMenuBar createMenuBar(MenuListener menuListener) {
+		//adds native feel to Mac Systems
+		System.setProperty("apple.laf.useScreenMenuBar", "true");
+		System.setProperty("com.apple.mrj.application.apple.menu.about.name", "UML Editor");
 		Font font = new Font("Times New Roman", Font.PLAIN, 18);
 		
 		JMenuBar menuBar = new JMenuBar();
@@ -155,6 +158,7 @@ public class ViewManager {
 
 		ClassBox classBox = new ClassBox(title, this);
 		classBox.setLocation(30, 30);
+
 		classBox.setVisible(true);
 		classBox.setSize(200, 300);
 		

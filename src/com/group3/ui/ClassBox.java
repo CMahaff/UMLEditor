@@ -1,7 +1,11 @@
 package com.group3.ui;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.MouseListener;
 import java.util.Stack;
 
@@ -9,11 +13,13 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextArea;
 
 import com.group3.ui.listener.ClassBoxListener;
-import com.group3.ui.listener.PopupListener;
+import com.group3.ui.listener.MouseDragListener;
+import com.group3.ui.listener.MouseEventListener;
 
 
 /**
@@ -26,8 +32,10 @@ public class ClassBox extends JInternalFrame {
 	private int id = 0;
 	private boolean addBorder = false;
 	private MouseListener popupListener;
+	private MouseDragListener dragListener;
 	private ClassBoxListener classBoxListener;
 	private Stack<JTextArea> textStack;
+
 	
 	/**
 	 * A view representing a Class Box
@@ -36,13 +44,28 @@ public class ClassBox extends JInternalFrame {
 	 * @param id integer id used as a reference to this boxes data component
 	 */
 	public ClassBox(String title, ViewManager viewRef) {
-		super(title, true); //JInternalFrame title, resizability
-		
+		super(title, true); //JInternalFrame title, resizable
+
+		this.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
 		this.setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		this.textStack = new Stack<JTextArea>();
-		
+
+
+		createTitleBox();
 		createPopupMenu(viewRef);
 		createTextBox();
+		dragClassBox();
+		
+	}
+
+	/**
+	 * adds dragging capability 
+	 */
+	private void dragClassBox() {
+		this.dragListener = new MouseDragListener(this);
+		this.addMouseListener(this.dragListener);
+		this.addMouseMotionListener(this.dragListener);
+
 	}
 	
 	/**
@@ -64,9 +87,27 @@ public class ClassBox extends JInternalFrame {
         menuItem.addActionListener(this.classBoxListener);
         popup.add(menuItem);
  
-        this.popupListener = new PopupListener(popup);
+        this.popupListener = new MouseEventListener(popup);
         this.addMouseListener(this.popupListener);
         this.addComponentListener(this.classBoxListener);
+	}
+	/**
+	 * Adds an editable title to the class Box
+	 * Border is added to the bottom of the JPanel to reflect the border added to text Boxes
+	 * Cursor is set to a custom move cursor to show the user is able to drag this classBox from this JPanel
+	 */
+	public void createTitleBox() {
+
+		JPanel titl = new JPanel();
+
+		JTextArea titleText = new JTextArea(title,1,1);
+		titl.add(titleText);
+		titl.setBorder(BorderFactory.createMatteBorder(0, 0, 4, 0, Color.BLACK));
+		
+		titl.addFocusListener(this.classBoxListener);
+		titl.setCursor(moveCursor());
+
+		this.add(titl);
 	}
 	
 	/**
@@ -82,6 +123,7 @@ public class ClassBox extends JInternalFrame {
 		} else {
 			this.addBorder = true;
 		}
+
 		textArea.addMouseListener(this.popupListener);
 		textArea.addFocusListener(this.classBoxListener);
 		this.add(textArea);
@@ -132,6 +174,18 @@ public class ClassBox extends JInternalFrame {
 		if(this.id == 0 && id != 0) {
 			this.id = id;
 		}
+	}
+	/**
+	 * creates a custom cursor using a local png file. 
+	 * Reason is Mac systems appear to not recognize when using Java's own 'MOVE_CURSOR' 
+	 * 
+	 * @return c returns the custom cursor
+	 */
+	public Cursor moveCursor() {
+		Toolkit toolkit = Toolkit.getDefaultToolkit();
+		Image image = toolkit.getImage("image/cursor.png");
+		Cursor c = toolkit.createCustomCursor(image, new Point(10, 10), "img");
+		return c;
 	}
 	
 	/**

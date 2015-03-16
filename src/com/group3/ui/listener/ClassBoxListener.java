@@ -15,7 +15,7 @@ import com.group3.ui.ViewManager;
 
 /**
  * @author Connor Mahaffey
- * 		   David Mengel
+ * 		   Dave Mengel
  */
 public class ClassBoxListener implements ActionListener, ComponentListener, FocusListener {
 	
@@ -51,7 +51,20 @@ public class ClassBoxListener implements ActionListener, ComponentListener, Focu
 	public void componentHidden(ComponentEvent e) {}
 
 	@Override
-	public void componentMoved(ComponentEvent e) {}
+	/**
+ 	* check this.. 
+ 	*/
+	public void componentMoved(ComponentEvent e) {
+		if(this.viewManager == null) {
+			return;
+		}
+		
+		DataManager dm = this.viewManager.getDataManager();
+		dm.updateClassBoxDataWindow(this.classBox.getId(), 
+									this.classBox.getX(), this.classBox.getY(), 
+									this.classBox.getWidth(), this.classBox.getHeight());
+		this.viewManager.repaintUML();
+	}
 
 	@Override
 	public void componentResized(ComponentEvent e) {

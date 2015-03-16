@@ -47,6 +47,7 @@ public class ClassBox extends JInternalFrame {
 		super(title, true); //JInternalFrame title, resizable
 
 		this.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
+		this.setBackground(Color.GRAY.brighter());
 		this.setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		this.textStack = new Stack<JTextArea>();
 
@@ -101,7 +102,9 @@ public class ClassBox extends JInternalFrame {
 		JPanel titl = new JPanel();
 
 		JTextArea titleText = new JTextArea(title,1,1);
+		titleText.setBackground(Color.GRAY.brighter());
 		titl.add(titleText);
+		titl.setBackground(Color.GRAY.brighter());
 		titl.setBorder(BorderFactory.createMatteBorder(0, 0, 4, 0, Color.BLACK));
 		
 		titl.addFocusListener(this.classBoxListener);
@@ -118,6 +121,7 @@ public class ClassBox extends JInternalFrame {
 	 */
 	public void createTextBox() {
 		JTextArea textArea = new JTextArea();
+		textArea.setBackground(Color.GRAY.brighter());
 		if(this.addBorder) {
 			textArea.setBorder(BorderFactory.createMatteBorder(4, 0, 0, 0, Color.BLACK));
 		} else {

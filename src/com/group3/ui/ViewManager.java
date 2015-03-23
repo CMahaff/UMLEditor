@@ -21,6 +21,8 @@ import com.group3.data.DataManager;
 import com.group3.ui.listener.MenuListener;
 import com.group3.ui.listener.UMLSceneManager;
 import com.group3.ui.listener.WindowContainerListener;
+import com.group3.ui.KeyboardShortcuts;
+
 //import com.sun.glass.events.KeyEvent; not sure what this is for, gives error when uncommented
 
 /**
@@ -36,13 +38,9 @@ public class ViewManager {
 	private UMLScene umlScene;
 	
 	//Arrays to provide the KeyEvents and KeyMasks for menu options
-	private final int[] keyArray = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57};
-	private final int[] maskArray = {8, 2, 1};
-	
+	private KeyboardShortcuts keyboardShortcuts = new KeyboardShortcuts();
 	private File saveFile = null;
 	
-	//Vars needed for testing
-
 	
 	/**
 	 * Create listeners for our windows which report back to this object.
@@ -94,28 +92,28 @@ public class ViewManager {
 		Font font = new Font("Times New Roman", Font.PLAIN, 18);
 		
 		JMenuBar menuBar = new JMenuBar();
-				
-		JMenu file = new JMenu("File");
+			
+	
+		 JMenu file = new JMenu("File");
 		file.setFont(font);
-		/* setAccelerator sets keyboard shortcuts for the actions*/
-		file.add(createMenuItem("New", font, menuListener, keyArray[1], maskArray[0]));
-		file.add(createMenuItem("Open", font, menuListener, keyArray[2], maskArray[0]));
-		file.add(createMenuItem("Save", font, menuListener, keyArray[3], maskArray[0]));
-		file.add(createMenuItem("Save As", font, menuListener, keyArray[4], maskArray[0]));
-		file.add(createMenuItem("Exit", font, menuListener, keyArray[5], maskArray[0]));
+		file.add(createMenuItem("New", font, menuListener, "CTRL", "N"));
+		file.add(createMenuItem("Open", font, menuListener, "CTRL", "O"));
+		file.add(createMenuItem("Save", font, menuListener, "CTRL", "S"));
+		file.add(createMenuItem("Save As", font, menuListener, "CTRL", "A"));
+		file.add(createMenuItem("Exit", font, menuListener, "CTRL", "E"));
 		menuBar.add(file);
 		
 		JMenu add = new JMenu("Add");
 		add.setFont(font);
 
-		add.add(createMenuItem("Class Box", font, menuListener, keyArray[1], maskArray[1]));
+		add.add(createMenuItem("Class Box", font, menuListener, "ALT", "C"));
 		JMenuItem relationship = new JMenu("Relationship");
 		relationship.setFont(font);
-		relationship.add(createMenuItem("Basic", font, menuListener, keyArray[2], maskArray[1]));
-		relationship.add(createMenuItem("Dependency", font, menuListener, keyArray[3], maskArray[1]));
-		relationship.add(createMenuItem("Aggregation", font, menuListener, keyArray[4], maskArray[1]));
-		relationship.add(createMenuItem("Composition", font, menuListener, keyArray[5], maskArray[1]));
-		relationship.add(createMenuItem("Generalization", font, menuListener, keyArray[6], maskArray[1]));
+		relationship.add(createMenuItem("Basic", font, menuListener, "ALT", "B"));
+		relationship.add(createMenuItem("Dependency", font, menuListener, "ALT", "D"));
+		relationship.add(createMenuItem("Aggregation", font, menuListener, "ALT", "A"));
+		relationship.add(createMenuItem("Composition", font, menuListener, "ALT", "C"));
+		relationship.add(createMenuItem("Generalization", font, menuListener, "ALT", "G"));
 		add.add(relationship);
 
 		menuBar.add(add);
@@ -130,11 +128,14 @@ public class ViewManager {
 	 * @param listener listener for the option
 	 * @return a JMenuItem
 	 */
-	private JMenuItem createMenuItem(String text, Font font, MenuListener listener, int key, int mask) {
+	private JMenuItem createMenuItem(String text, Font font, MenuListener listener, String key, String mask) {
 		/* KeyEvent.VK_T allows the user to toggle through the menu by pressing T
 		 * They have to be in the menu for this to work. */
+		int keyStroke = keyboardShortcuts.checkKey(key);
+		int keyMask = keyboardShortcuts.checkKey(mask);
+		
 		JMenuItem item = new JMenuItem(text, KeyEvent.VK_T);
-		item.setAccelerator(KeyStroke.getKeyStroke(key ,mask));
+		item.setAccelerator(KeyStroke.getKeyStroke(keyMask , keyStroke));
 		item.addActionListener(listener);
 		item.setFont(font);
 		

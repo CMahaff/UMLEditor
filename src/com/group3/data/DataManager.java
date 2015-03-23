@@ -128,6 +128,23 @@ public class DataManager {
 		this.classBoxes.remove(id);
 	}
 	
+	/**
+	 * Add a new relationship data object
+	 * @param sourceId the id of the source class box
+	 * @param destinationId the id of the destination class box
+	 * @param type the type of UML association
+	 */
+	public void addRelationshipData(int sourceId, int destinationId, int type) {
+		ClassBoxData source = this.classBoxes.get(sourceId);
+		ClassBoxData destination = this.classBoxes.get(destinationId);
+		
+		if(source != null && destination != null) {
+			RelationshipData relationshipData = new RelationshipData(source, destination, type);
+			index++;
+			this.relationships.put(index, relationshipData);
+		}
+	}
+	
 	/* TODO: Add relationship data option!!! */
 	
 	/**

@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JOptionPane;
 
+import com.group3.data.RelationshipData;
 import com.group3.ui.ViewManager;
 
 /**
@@ -38,6 +39,10 @@ public class MenuListener implements ActionListener {
 			this.viewManager.doExit();
 		} else if(e.getActionCommand().equals("Class Box")) {
 			this.viewManager.addClassBox();
+		} else if(e.getActionCommand().equals("Basic")) {
+			//TODO: remove test!
+			this.viewManager.getDataManager().addRelationshipData(1, 2, RelationshipData.BASIC);
+			this.viewManager.repaintUML();
 		} else {
 			System.out.println(e.getActionCommand());
 			JOptionPane.showMessageDialog(null, "This component is still in development.", 

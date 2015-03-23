@@ -72,7 +72,6 @@ public class MouseDragListener extends MouseAdapter implements MouseListener, Mo
 		//parenthesis' around screenX/Y - framePosX/Y are unnecessary. But are used to clarify the offset necessary 
 		//between the cursor location from the system screen and from the UMLScene Container.
 		box.setLocation ((screenX - framePosX) - posX, (screenY - framePosY) - posY);
-
 	}
 
 	@Override

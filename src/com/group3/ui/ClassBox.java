@@ -202,8 +202,9 @@ public class ClassBox extends JInternalFrame {
 	 */
 	public Cursor moveCursor() {
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
-		Image image = toolkit.getImage("image/cursor.png");
+		Image image = toolkit.getImage(ClassLoader.getSystemResource("cursor.png"));
 		Cursor c = toolkit.createCustomCursor(image, new Point(10, 10), "img");
+		
 		return c;
 	}
 	

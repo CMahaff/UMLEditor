@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.MouseListener;
@@ -16,6 +17,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextArea;
+import javax.swing.plaf.basic.BasicInternalFrameUI;
 
 import com.group3.ui.listener.ClassBoxListener;
 import com.group3.ui.listener.MouseDragListener;
@@ -34,6 +36,7 @@ public class ClassBox extends JInternalFrame {
 	private MouseListener popupListener;
 	private MouseDragListener dragListener;
 	private ClassBoxListener classBoxListener;
+	private JTextArea titleTextArea;
 	private Stack<JTextArea> textStack;
 
 	
@@ -44,25 +47,27 @@ public class ClassBox extends JInternalFrame {
 	 * @param id integer id used as a reference to this boxes data component
 	 */
 	public ClassBox(String title, ViewManager viewRef) {
-		super(title, true); //JInternalFrame title, resizable
+		super("", true); //JInternalFrame title, resizable
 
-		this.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
+		this.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.BLACK));
 		this.setBackground(Color.GRAY.brighter());
 		this.setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		this.textStack = new Stack<JTextArea>();
 
+		BasicInternalFrameUI basic = (BasicInternalFrameUI)this.getUI();
+		basic.setNorthPane(null);
 
-		createTitleBox();
+		createTitleBox(title);
 		createPopupMenu(viewRef);
 		createTextBox();
-		dragClassBox();
+		addDrag();
 		
 	}
 
 	/**
 	 * adds dragging capability 
 	 */
-	private void dragClassBox() {
+	private void addDrag() {
 		this.dragListener = new MouseDragListener(this);
 		this.addMouseListener(this.dragListener);
 		this.addMouseMotionListener(this.dragListener);
@@ -92,25 +97,26 @@ public class ClassBox extends JInternalFrame {
         this.addMouseListener(this.popupListener);
         this.addComponentListener(this.classBoxListener);
 	}
+	
 	/**
 	 * Adds an editable title to the class Box
 	 * Border is added to the bottom of the JPanel to reflect the border added to text Boxes
 	 * Cursor is set to a custom move cursor to show the user is able to drag this classBox from this JPanel
 	 */
-	public void createTitleBox() {
+	public void createTitleBox(String title) {
 
-		JPanel titl = new JPanel();
+		JPanel titlePanel = new JPanel();
 
-		JTextArea titleText = new JTextArea(title,1,1);
-		titleText.setBackground(Color.GRAY.brighter());
-		titl.add(titleText);
-		titl.setBackground(Color.GRAY.brighter());
-		titl.setBorder(BorderFactory.createMatteBorder(0, 0, 4, 0, Color.BLACK));
+		this.titleTextArea = new JTextArea(title, 1, 1);
+		this.titleTextArea.setBackground(Color.GRAY.brighter());
+		titlePanel.add(this.titleTextArea);
+		titlePanel.setBackground(Color.GRAY.brighter());
+		titlePanel.setBorder(BorderFactory.createMatteBorder(0, 0, 4, 0, Color.BLACK));
 		
-		titl.addFocusListener(this.classBoxListener);
-		titl.setCursor(moveCursor());
+		titlePanel.addFocusListener(this.classBoxListener);
+		titlePanel.setCursor(moveCursor());
 
-		this.add(titl);
+		this.add(titlePanel);
 	}
 	
 	/**
@@ -123,9 +129,15 @@ public class ClassBox extends JInternalFrame {
 		JTextArea textArea = new JTextArea();
 		textArea.setBackground(Color.GRAY.brighter());
 		if(this.addBorder) {
-			textArea.setBorder(BorderFactory.createMatteBorder(4, 0, 0, 0, Color.BLACK));
+			textArea.setBorder(
+					BorderFactory.createCompoundBorder(
+							BorderFactory.createMatteBorder(4, 0, 0, 0, Color.BLACK), 
+							BorderFactory.createEmptyBorder(5, 5, 5, 5)
+						)
+					);
 		} else {
 			this.addBorder = true;
+			textArea.setMargin(new Insets(5, 5, 5, 5));
 		}
 
 		textArea.addMouseListener(this.popupListener);
@@ -148,9 +160,12 @@ public class ClassBox extends JInternalFrame {
 		this.revalidate();
 	}
 	
+	/**
+	 * @return string array representation of the data within the text boxes, starting with the title box
+	 */
 	public String[] getArrayRepresentation() {
 		String[] content = new String[this.textStack.size() + 1];
-		content[0] = this.getTitle();
+		content[0] = this.titleTextArea.getText();
 		
 		for(int i = 0; i < this.textStack.size(); ++i) {
 			content[i + 1] = textStack.get(i).getText();
@@ -214,7 +229,7 @@ public class ClassBox extends JInternalFrame {
 		int height = Integer.parseInt(info[3]);
 		this.setLocation(posX, posY);
 		this.setSize(width, height);
-		this.setTitle(pieces[1]);
+		this.titleTextArea.setText(pieces[1]);
 		
 		for(int i = 2; i < pieces.length; ++i) {
 			if(i > 2) {

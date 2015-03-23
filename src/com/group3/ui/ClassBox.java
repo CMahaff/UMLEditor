@@ -3,6 +3,7 @@ package com.group3.ui;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
@@ -34,9 +35,9 @@ public class ClassBox extends JInternalFrame {
 	private int id = 0;
 	private boolean addBorder = false;
 	private MouseListener popupListener;
-	private MouseDragListener dragListener;
 	private ClassBoxListener classBoxListener;
 	private JTextArea titleTextArea;
+	private JPanel titlePanel;
 	private Stack<JTextArea> textStack;
 
 	
@@ -49,7 +50,7 @@ public class ClassBox extends JInternalFrame {
 	public ClassBox(String title, ViewManager viewRef) {
 		super("", true); //JInternalFrame title, resizable
 
-		this.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.BLACK));
+		this.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, Color.BLACK));
 		this.setBackground(Color.GRAY.brighter());
 		this.setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		this.textStack = new Stack<JTextArea>();
@@ -68,10 +69,9 @@ public class ClassBox extends JInternalFrame {
 	 * adds dragging capability 
 	 */
 	private void addDrag() {
-		this.dragListener = new MouseDragListener(this);
-		this.addMouseListener(this.dragListener);
-		this.addMouseMotionListener(this.dragListener);
-
+		MouseDragListener dragListener = new MouseDragListener(this);
+		this.titlePanel.addMouseListener(dragListener);
+		this.titlePanel.addMouseMotionListener(dragListener);
 	}
 	
 	/**
@@ -105,18 +105,19 @@ public class ClassBox extends JInternalFrame {
 	 */
 	public void createTitleBox(String title) {
 
-		JPanel titlePanel = new JPanel();
+		this.titlePanel = new JPanel();
 
 		this.titleTextArea = new JTextArea(title, 1, 1);
 		this.titleTextArea.setBackground(Color.GRAY.brighter());
-		titlePanel.add(this.titleTextArea);
-		titlePanel.setBackground(Color.GRAY.brighter());
-		titlePanel.setBorder(BorderFactory.createMatteBorder(0, 0, 4, 0, Color.BLACK));
+		this.titleTextArea.setFont(new Font("Times New Roman", Font.BOLD, 14));
+		this.titlePanel.add(this.titleTextArea);
+		this.titlePanel.setBackground(Color.GRAY.brighter());
+		this.titlePanel.setBorder(BorderFactory.createMatteBorder(0, 0, 4, 0, Color.BLACK));
 		
-		titlePanel.addFocusListener(this.classBoxListener);
-		titlePanel.setCursor(moveCursor());
+		this.titlePanel.addFocusListener(this.classBoxListener);
+		this.titlePanel.setCursor(moveCursor());
 
-		this.add(titlePanel);
+		this.add(this.titlePanel);
 	}
 	
 	/**
@@ -128,6 +129,7 @@ public class ClassBox extends JInternalFrame {
 	public void createTextBox() {
 		JTextArea textArea = new JTextArea();
 		textArea.setBackground(Color.GRAY.brighter());
+		textArea.setFont(new Font("Times New Roman", Font.PLAIN, 14));
 		if(this.addBorder) {
 			textArea.setBorder(
 					BorderFactory.createCompoundBorder(

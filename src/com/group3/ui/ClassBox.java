@@ -9,7 +9,6 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.MouseListener;
-import java.util.Iterator;
 import java.util.Stack;
 
 import javax.swing.BorderFactory;
@@ -269,17 +268,11 @@ public class ClassBox extends JInternalFrame {
 	}
 	
 	/**
-	 * Set the foreground color of the Class Box, which will change its font colors.
+	 * Sets the border color of the class box
+	 * @param color color to set the border to
 	 */
-	public void setForeground(Color color) {
-		super.setForeground(color);
-		
-		this.titleTextArea.setForeground(color);
-		Iterator<JTextArea> it = this.textStack.iterator();
-		while(it.hasNext()) {
-			JTextArea textArea = it.next();
-			textArea.setForeground(color);
-		}
+	public void setBorderColor(Color color) {
+		this.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, color));
 	}
 
 }

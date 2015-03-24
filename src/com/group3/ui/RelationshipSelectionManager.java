@@ -1,5 +1,7 @@
 package com.group3.ui;
 
+import java.awt.Color;
+
 
 public class RelationshipSelectionManager {
 	
@@ -36,6 +38,8 @@ public class RelationshipSelectionManager {
 															  this.selectedClassBoxes[1].getId(), 
 															  this.relationshipType);
 			this.viewRef.endRelationshipSelection();
+			this.selectedClassBoxes[0].setBorderColor(Color.BLACK);
+			this.selectedClassBoxes[1].setBorderColor(Color.BLACK);
 			this.viewRef.repaintUML();
 		}
 	}

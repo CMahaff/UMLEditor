@@ -102,13 +102,13 @@ public class ClassBoxListener implements ActionListener, ComponentListener, Focu
 
 	@Override
 	public void internalFrameActivated(InternalFrameEvent e) {
-		this.classBox.setForeground(Color.BLACK);
+		if(this.classBox.isSelectable()) {
+			this.classBox.setBorderColor(Color.BLUE);
+		}
 	}
 
 	@Override
-	public void internalFrameDeactivated(InternalFrameEvent e) {
-		this.classBox.setForeground(Color.GRAY);
-	}
+	public void internalFrameDeactivated(InternalFrameEvent e) {}
 	
 	@Override
 	public void internalFrameClosed(InternalFrameEvent e) {}

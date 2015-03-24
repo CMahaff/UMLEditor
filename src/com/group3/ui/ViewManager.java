@@ -21,7 +21,6 @@ import com.group3.data.DataManager;
 import com.group3.ui.listener.MenuListener;
 import com.group3.ui.listener.UMLSceneManager;
 import com.group3.ui.listener.WindowContainerListener;
-import com.group3.ui.KeyboardShortcuts;
 
 //import com.sun.glass.events.KeyEvent; not sure what this is for, gives error when uncommented
 

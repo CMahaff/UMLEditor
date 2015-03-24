@@ -69,7 +69,6 @@ public class Shape {
 	 */
 	public void drawFill(Graphics g) {
 		g.fillPolygon(xCoords, yCoords, nPoints);
-		System.out.println(xCoords[0]);
 	}
 	
 	public String toString() {

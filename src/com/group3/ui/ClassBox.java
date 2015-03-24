@@ -109,6 +109,7 @@ public class ClassBox extends JInternalFrame {
 
 		this.titleTextArea = new JTextArea(title, 1, 1);
 		this.titleTextArea.setBackground(Color.GRAY.brighter());
+		this.titleTextArea.setForeground(Color.BLACK);
 		this.titleTextArea.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		this.titlePanel.add(this.titleTextArea);
 		this.titlePanel.setBackground(Color.GRAY.brighter());
@@ -130,6 +131,7 @@ public class ClassBox extends JInternalFrame {
 		JTextArea textArea = new JTextArea();
 		textArea.setBackground(Color.GRAY.brighter());
 		textArea.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+		textArea.setForeground(Color.BLACK);
 		if(this.addBorder) {
 			textArea.setBorder(
 					BorderFactory.createCompoundBorder(

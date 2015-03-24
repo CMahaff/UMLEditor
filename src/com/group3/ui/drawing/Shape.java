@@ -31,5 +31,11 @@ public class Shape extends Polygon {
 		
 		super.translate(xDiff, yDiff);
 	}
-
+	
+	public void switchXAndY() {
+		int tempPoints[] = this.xpoints;
+		this.xpoints = this.ypoints;
+		this.ypoints = tempPoints;
+	}
+	
 }

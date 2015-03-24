@@ -2,6 +2,7 @@ package com.group3.ui;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 import javax.swing.JDesktopPane;
 
@@ -29,7 +30,10 @@ public class UMLScene extends JDesktopPane {
 		triangle.addPoint(10, 0);
 		triangle.addPoint(0, 20);
 		triangle.addPoint(20, 20);
+		
 		this.shapes[UMLScene.TRIANGLE] = triangle;
+		
+		
 	}
 	
 	/**
@@ -45,7 +49,9 @@ public class UMLScene extends JDesktopPane {
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
-		g.clearRect(0, 0, this.getWidth(), this.getHeight());
+		Graphics2D g2d = (Graphics2D)g;
+		
+		g2d.clearRect(0, 0, this.getWidth(), this.getHeight());
 		
 		/*
 		for(ClassBoxData entry : this.dataManager.getClassBoxData().values()) {
@@ -64,10 +70,10 @@ public class UMLScene extends JDesktopPane {
 				case RelationshipData.BASIC:
 					shape = this.shapes[UMLScene.TRIANGLE];
 					calculateShapeOffset(shape, entry.getSourceClassBox());
-					g.drawPolygon(shape);
+					g2d.drawPolygon(shape);
 					
 					calculateShapeOffset(shape, entry.getDestinationClassBox());
-					g.drawPolygon(shape);
+					g2d.drawPolygon(shape);
 					break;
 				default:
 					break;

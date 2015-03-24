@@ -40,9 +40,7 @@ public class MenuListener implements ActionListener {
 		} else if(e.getActionCommand().equals("Class Box")) {
 			this.viewManager.addClassBox();
 		} else if(e.getActionCommand().equals("Basic")) {
-			//TODO: remove test!
-			this.viewManager.getDataManager().addRelationshipData(1, 2, RelationshipData.BASIC);
-			this.viewManager.repaintUML();
+			this.viewManager.startRelationshipSelection(RelationshipData.BASIC);
 		} else {
 			System.out.println(e.getActionCommand());
 			JOptionPane.showMessageDialog(null, "This component is still in development.", 

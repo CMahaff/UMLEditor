@@ -8,6 +8,7 @@ import java.io.File;
 import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -39,6 +40,8 @@ public class ViewManager {
 	//Arrays to provide the KeyEvents and KeyMasks for menu options
 	private KeyboardShortcuts keyboardShortcuts = new KeyboardShortcuts();
 	private File saveFile = null;
+	
+	private RelationshipSelectionManager relSelManager;
 	
 	
 	/**
@@ -93,7 +96,7 @@ public class ViewManager {
 		JMenuBar menuBar = new JMenuBar();
 			
 	
-		 JMenu file = new JMenu("File");
+		JMenu file = new JMenu("File");
 		file.setFont(font);
 		file.add(createMenuItem("New", font, menuListener, "CTRL", "N"));
 		file.add(createMenuItem("Open", font, menuListener, "CTRL", "O"));
@@ -339,6 +342,39 @@ public class ViewManager {
 	 */
 	public void repaintUML() {
 		this.umlScene.repaint();
+	}
+	
+	public void startRelationshipSelection(int relationshipType) {
+		
+		JOptionPane.showMessageDialog(null, "Select two Class Boxes to link with the relationship.");
+		
+		ClassBox classBox = (ClassBox)this.umlScene.getSelectedFrame();
+		if(classBox != null) {
+			try {
+				classBox.setSelected(false);
+			} catch (PropertyVetoException e) {
+				System.err.println("Class Box could not be unselected.");
+				System.exit(1);
+			}
+		}
+		
+		this.relSelManager = new RelationshipSelectionManager(this, relationshipType);
+		
+		for(JInternalFrame entry : this.umlScene.getAllFrames()) {
+			ClassBox c = (ClassBox)entry;
+			c.setSelectable(true);
+		}
+	}
+	
+	public void endRelationshipSelection() {
+		for(JInternalFrame entry : this.umlScene.getAllFrames()) {
+			ClassBox c = (ClassBox)entry;
+			c.setSelectable(false);
+		}
+	}
+	
+	public RelationshipSelectionManager getRelationshipSelectionManager() {
+		return this.relSelManager;
 	}
 	
 }

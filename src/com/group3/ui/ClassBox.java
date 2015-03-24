@@ -9,6 +9,7 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.MouseListener;
+import java.util.Iterator;
 import java.util.Stack;
 
 import javax.swing.BorderFactory;
@@ -33,7 +34,7 @@ import com.group3.ui.listener.MouseEventListener;
 public class ClassBox extends JInternalFrame {
 	
 	private int id = 0;
-	private boolean addBorder = false;
+	private boolean addBorder = false, selectable = false;
 	private MouseListener popupListener;
 	private ClassBoxListener classBoxListener;
 	private JTextArea titleTextArea;
@@ -57,6 +58,9 @@ public class ClassBox extends JInternalFrame {
 
 		BasicInternalFrameUI basic = (BasicInternalFrameUI)this.getUI();
 		basic.setNorthPane(null);
+		
+		this.classBoxListener = new ClassBoxListener(viewRef, this);
+		this.addInternalFrameListener(this.classBoxListener);
 
 		createTitleBox(title);
 		createPopupMenu(viewRef);
@@ -80,7 +84,6 @@ public class ClassBox extends JInternalFrame {
 	 */
 	private void createPopupMenu(ViewManager viewRef) {
         JMenuItem menuItem;
-        this.classBoxListener = new ClassBoxListener(viewRef, this);
         //Create the popup menu.
         JPopupMenu popup = new JPopupMenu();
         menuItem = new JMenuItem("Add Section");
@@ -243,6 +246,39 @@ public class ClassBox extends JInternalFrame {
 			}
 			JTextArea textArea = this.textStack.lastElement();
 			textArea.setText(pieces[i]);
+		}
+	}
+	
+	/**
+	 * @return can this component be selected for a relationship
+	 */
+	public boolean isSelectable() {
+		return this.selectable;
+	}
+	
+	/**
+	 * Set whether this Class Box can be selected.
+	 * 
+	 * This option gets turned on when a relationship has been chosen and Class Boxes for the
+	 * relationship are getting selected.
+	 * 
+	 * @param s the value to set the selectable property
+	 */
+	public void setSelectable(boolean s) {
+		this.selectable = s;
+	}
+	
+	/**
+	 * Set the foreground color of the Class Box, which will change its font colors.
+	 */
+	public void setForeground(Color color) {
+		super.setForeground(color);
+		
+		this.titleTextArea.setForeground(color);
+		Iterator<JTextArea> it = this.textStack.iterator();
+		while(it.hasNext()) {
+			JTextArea textArea = it.next();
+			textArea.setForeground(color);
 		}
 	}
 

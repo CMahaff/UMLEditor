@@ -25,7 +25,7 @@ public class UMLScene extends JDesktopPane {
 	public UMLScene(DataManager dataManager) {
 		this.dataManager = dataManager;
 		
-		Shape triangle = new Shape(3);
+		Shape triangle = new Shape();
 		triangle.addPoint(10, 0);
 		triangle.addPoint(0, 20);
 		triangle.addPoint(20, 20);
@@ -64,10 +64,10 @@ public class UMLScene extends JDesktopPane {
 				case RelationshipData.BASIC:
 					shape = this.shapes[UMLScene.TRIANGLE];
 					calculateShapeOffset(shape, entry.getSourceClassBox());
-					shape.drawOutline(g);
+					g.drawPolygon(shape);
 					
 					calculateShapeOffset(shape, entry.getDestinationClassBox());
-					shape.drawOutline(g);
+					g.drawPolygon(shape);
 					break;
 				default:
 					break;
@@ -84,7 +84,7 @@ public class UMLScene extends JDesktopPane {
 		int x = classBox.getX() + classBox.getWidth() / 2 - 10;
 		int y = classBox.getY() + classBox.getHeight();
 		
-		shape.setOffset(x, y);
+		shape.translate(x, y);
 	}
 	
 	public Dimension getPreferredSize() {

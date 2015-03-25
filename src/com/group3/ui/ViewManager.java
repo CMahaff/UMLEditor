@@ -76,6 +76,7 @@ public class ViewManager {
 		this.umlScene.setDoubleBuffered(true);
 		UMLSceneManager umlSceneManager = new UMLSceneManager(this.dataRef, this.umlScene);
 		this.umlScene.setDesktopManager(umlSceneManager);
+		this.umlScene.addComponentListener(windowContainerListener);
 		this.windowFrame.add(umlScene);
 		
 		this.windowFrame.pack();

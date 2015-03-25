@@ -22,7 +22,7 @@ import com.group3.data.RelationshipData;
 public class UMLScene extends JDesktopPane {
 	
 	private static final int HEIGHT = 30;
-	private static final int LINE = 0, TRIANGLE = 1;
+	private static final int LINE = 0, TRIANGLE = 1, ARROW = 2;
 	
 	private DataManager dataManager;
 	private Polygon[] polygons = new Polygon[5];
@@ -38,12 +38,20 @@ public class UMLScene extends JDesktopPane {
 		Polygon triangle = new Polygon();
 		triangle.addPoint(10, 0);
 		triangle.addPoint(0, 20);
-		triangle.addPoint(9, 20);
-		triangle.addPoint(9, 30);
-		triangle.addPoint(11, 30);
-		triangle.addPoint(11, 20);
+		triangle.addPoint(10, 20);
+		triangle.addPoint(10, 30);
+		triangle.addPoint(10, 20);
 		triangle.addPoint(20, 20);	
 		this.polygons[UMLScene.TRIANGLE] = triangle;
+		
+		Polygon arrow = new Polygon();
+		arrow.addPoint(10, 0);
+		arrow.addPoint(0, 17);
+		arrow.addPoint(10, 0);
+		arrow.addPoint(10, 30);
+		arrow.addPoint(10, 0);
+		arrow.addPoint(20, 17);	
+		this.polygons[UMLScene.ARROW] = arrow;
 		
 		
 	}
@@ -69,7 +77,30 @@ public class UMLScene extends JDesktopPane {
 			switch(entry.getType()) {
 				case RelationshipData.BASIC:
 					drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), 0, false);
-					drawPolygon(g2d, polygons[UMLScene.TRIANGLE], entry.getDestinationClassBox(), 0, true);
+					drawPolygon(g2d, polygons[UMLScene.LINE], entry.getDestinationClassBox(), 0, false);
+					drawConnection(g2d, entry.getSourceClassBox(), entry.getDestinationClassBox());
+					break;
+				case RelationshipData.DEPENDENCY:
+					//TODO: Add dashed line instead of solid line
+					drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), 0, false);
+					drawPolygon(g2d, polygons[UMLScene.ARROW], entry.getDestinationClassBox(), 0, false);
+					drawConnection(g2d, entry.getSourceClassBox(), entry.getDestinationClassBox());
+					break;
+				case RelationshipData.AGGREGATION:
+					//TODO: Add diamond head
+					drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), 0, false);
+					drawPolygon(g2d, polygons[UMLScene.LINE], entry.getDestinationClassBox(), 0, false);
+					drawConnection(g2d, entry.getSourceClassBox(), entry.getDestinationClassBox());
+					break;
+				case RelationshipData.COMPOSITION:
+					//TODO: Same as above but filled in
+					drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), 0, false);
+					drawPolygon(g2d, polygons[UMLScene.LINE], entry.getDestinationClassBox(), 0, false);
+					drawConnection(g2d, entry.getSourceClassBox(), entry.getDestinationClassBox());
+					break;
+				case RelationshipData.GENERALIZATION:
+					drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), 0, false);
+					drawPolygon(g2d, polygons[UMLScene.TRIANGLE], entry.getDestinationClassBox(), 0, false);
 					drawConnection(g2d, entry.getSourceClassBox(), entry.getDestinationClassBox());
 					break;
 				default:
@@ -106,10 +137,9 @@ public class UMLScene extends JDesktopPane {
         //apply our transformation to our graphics object
         g.setTransform(at);
         //draw our transformed polygon
+        g.drawPolygon(polygon);
         if(fill) {
         	g.fillPolygon(polygon);
-        } else {
-        	g.drawPolygon(polygon);
         }
         
         //Change our transform back to normal

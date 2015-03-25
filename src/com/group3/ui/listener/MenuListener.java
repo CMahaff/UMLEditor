@@ -41,6 +41,14 @@ public class MenuListener implements ActionListener {
 			this.viewManager.addClassBox();
 		} else if(e.getActionCommand().equals("Basic")) {
 			this.viewManager.startRelationshipSelection(RelationshipData.BASIC);
+		} else if(e.getActionCommand().equals("Dependency")) {
+			this.viewManager.startRelationshipSelection(RelationshipData.DEPENDENCY);
+		} else if(e.getActionCommand().equals("Aggregation")) {
+			this.viewManager.startRelationshipSelection(RelationshipData.AGGREGATION);
+		} else if(e.getActionCommand().equals("Composition")) {
+			this.viewManager.startRelationshipSelection(RelationshipData.COMPOSITION);
+		} else if(e.getActionCommand().equals("Generalization")) {
+			this.viewManager.startRelationshipSelection(RelationshipData.GENERALIZATION);
 		} else {
 			System.out.println(e.getActionCommand());
 			JOptionPane.showMessageDialog(null, "This component is still in development.", 

@@ -346,7 +346,9 @@ public class ViewManager {
 	
 	public void startRelationshipSelection(int relationshipType) {
 		
-		JOptionPane.showMessageDialog(null, "Select two Class Boxes to link with the relationship.");
+		JOptionPane.showMessageDialog(this.windowFrame, 
+									  "Select two Class Boxes to link with the relationship.",
+									  "Hint", JOptionPane.INFORMATION_MESSAGE);
 		
 		ClassBox classBox = (ClassBox)this.umlScene.getSelectedFrame();
 		if(classBox != null) {

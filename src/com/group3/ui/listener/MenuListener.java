@@ -39,7 +39,7 @@ public class MenuListener implements ActionListener {
 			this.viewManager.doExit();
 		} else if(e.getActionCommand().equals("Class Box")) {
 			this.viewManager.addClassBox();
-		} else if(e.getActionCommand().equals("Basic")) {
+		} else if(e.getActionCommand().equals("Association")) {
 			this.viewManager.startRelationshipSelection(RelationshipData.BASIC);
 		} else if(e.getActionCommand().equals("Dependency")) {
 			this.viewManager.startRelationshipSelection(RelationshipData.DEPENDENCY);

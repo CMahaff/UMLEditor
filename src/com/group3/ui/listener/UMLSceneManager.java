@@ -5,18 +5,15 @@ import javax.swing.JComponent;
 
 import com.group3.data.DataManager;
 import com.group3.ui.ClassBox;
-import com.group3.ui.UMLScene;
 
 @SuppressWarnings("serial")
 public class UMLSceneManager extends DefaultDesktopManager {
 	
 	private DataManager dataRef;
-	private UMLScene sceneRef;
 	
-	public UMLSceneManager(DataManager dataRef, UMLScene sceneRef) {
+	public UMLSceneManager(DataManager dataRef) {
 		super();
 		this.dataRef = dataRef;
-		this.sceneRef = sceneRef;
 	}
 	
 	public void dragFrame(JComponent boxComp, int newX, int newY) {
@@ -24,7 +21,13 @@ public class UMLSceneManager extends DefaultDesktopManager {
 		ClassBox classBox = (ClassBox)boxComp;
 		this.dataRef.updateClassBoxDataWindow(classBox.getId(), classBox.getX(), classBox.getY(), 
 											  classBox.getWidth(), classBox.getHeight());
-		
-		this.sceneRef.repaint();
+	}
+	
+	public void endDraggingFrame(JComponent boxComp) {
+		//TODO: put undo hook here?
+	}
+	
+	public void endResizingFrame(JComponent boxComp) {
+		//TODO: put undo hook here?
 	}
 }

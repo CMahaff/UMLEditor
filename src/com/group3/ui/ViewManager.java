@@ -62,7 +62,6 @@ public class ViewManager {
 		/* Window Frame */
 		this.windowFrame = new JFrame();
 		this.windowFrame.setTitle("UML Editor " + Main.version);
-		this.windowFrame.setLocationRelativeTo(null); //get window to be centered
 		this.windowFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		
 		this.windowFrame.addWindowListener(windowContainerListener);
@@ -74,13 +73,13 @@ public class ViewManager {
 		this.umlScene = new UMLScene(this.dataRef);
 		this.umlScene.setDragMode(JDesktopPane.LIVE_DRAG_MODE);
 		this.umlScene.setDoubleBuffered(true);
-		UMLSceneManager umlSceneManager = new UMLSceneManager(this.dataRef, this.umlScene);
+		UMLSceneManager umlSceneManager = new UMLSceneManager(this.dataRef);
 		this.umlScene.setDesktopManager(umlSceneManager);
-		this.umlScene.addComponentListener(windowContainerListener);
-		this.windowFrame.add(umlScene);
+		this.windowFrame.add(this.umlScene);
 		
 		this.windowFrame.pack();
 		this.windowFrame.setVisible(true);
+		this.windowFrame.setLocationRelativeTo(null); //get window to be centered
 	}
 	
 	/**

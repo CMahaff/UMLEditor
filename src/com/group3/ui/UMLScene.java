@@ -67,6 +67,8 @@ public class UMLScene extends JDesktopPane {
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
+		System.out.println("Ran");
+		
 		Graphics2D g2d = (Graphics2D)g;
 		
 		g2d.clearRect(0, 0, this.getWidth(), this.getHeight());
@@ -118,30 +120,29 @@ public class UMLScene extends JDesktopPane {
 	 * @param fill whether the shape should be filled
 	 */
 	private void drawPolygon(Graphics2D g, Polygon polygon, ClassBoxData classBox, int rotation, boolean fill) {
-		int x = classBox.getX() + classBox.getWidth() / 2 - 10;
+		int x = classBox.getX() + classBox.getWidth() / 2;
 		int y = classBox.getY() + classBox.getHeight() + polygon.getBounds().height / 2;
 		
 		//save our old settings to revert when we are done rotating, etc.
 		//otherwise ClassBoxes will be upside-down and other nonsense
 		AffineTransform old = g.getTransform();
 		
-		//create a new transform object
+		//get a copy of the transform to edit
 		//the following steps basically occur in reverse order -  Graphics2D is weird like that
-		AffineTransform at = new AffineTransform();
+		AffineTransform transform = g.getTransform();
 		//translate to our final position
-        at.translate(x, y);
+        transform.translate(x, y);
         //rotate our object about its center (see code below)
-        at.rotate(Math.toRadians(rotation));
+        transform.rotate(Math.toRadians(rotation));
         //translate our geometry to its center
-        at.translate(-polygon.getBounds().width / 2, -polygon.getBounds().height / 2);
+        transform.translate(-polygon.getBounds().width / 2, -polygon.getBounds().height / 2);
         //apply our transformation to our graphics object
-        g.setTransform(at);
+        g.setTransform(transform);
         //draw our transformed polygon
         g.drawPolygon(polygon);
         if(fill) {
         	g.fillPolygon(polygon);
         }
-        
         //Change our transform back to normal
         g.setTransform(old);
 	}
@@ -153,10 +154,10 @@ public class UMLScene extends JDesktopPane {
 	 * @param c2 the other class box to draw under
 	 */
 	private void drawConnection(Graphics2D g, ClassBoxData c1, ClassBoxData c2) {
-		int x1 = c1.getX() + c1.getWidth() / 2 - 10;
+		int x1 = c1.getX() + c1.getWidth() / 2;
 		int y1 = c1.getY() + c1.getHeight() + HEIGHT;
 		
-		int x2 = c2.getX() + c2.getWidth() / 2 - 10;
+		int x2 = c2.getX() + c2.getWidth() / 2;
 		int y2 = c2.getY() + c2.getHeight() + HEIGHT;
 		
 		g.drawLine(x1, y1, x2, y2);

@@ -60,6 +60,7 @@ public class ClassBox extends JInternalFrame {
 		
 		this.classBoxListener = new ClassBoxListener(viewRef, this);
 		this.addInternalFrameListener(this.classBoxListener);
+        this.addComponentListener(this.classBoxListener);
 
 		createTitleBox(title);
 		createPopupMenu(viewRef);
@@ -97,7 +98,6 @@ public class ClassBox extends JInternalFrame {
  
         this.popupListener = new MouseEventListener(popup);
         this.addMouseListener(this.popupListener);
-        this.addComponentListener(this.classBoxListener);
 	}
 	
 	/**

@@ -54,9 +54,6 @@ public class ClassBoxListener implements ActionListener, ComponentListener, Focu
 	public void componentHidden(ComponentEvent e) {}
 
 	@Override
-	/**
- 	* check this.. 
- 	*/
 	public void componentMoved(ComponentEvent e) {
 		if(this.viewManager == null) {
 			return;

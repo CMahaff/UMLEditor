@@ -121,11 +121,21 @@ public class DataManager {
 	}
 	
 	/**
-	 * Remove a Class Box with a given id
+	 * Remove a Class Box with a given id.
+	 * 
+	 * This will also remove any relationships associated with this class box.
+	 * 
 	 * @param id the id of the Class Box to remove
 	 */
 	public void removeClassBoxData(int id) {
-		this.classBoxes.remove(id);
+		ClassBoxData classBox = this.classBoxes.remove(id);
+		
+		for(Entry<Integer, RelationshipData> entry : this.relationships.entrySet()) {
+			if(entry.getValue().getSourceClassBox() == classBox ||
+			   entry.getValue().getDestinationClassBox() == classBox) {
+				this.relationships.remove(entry.getKey());
+			}
+		}
 	}
 	
 	/**
@@ -144,8 +154,6 @@ public class DataManager {
 			this.relationships.put(index, relationshipData);
 		}
 	}
-	
-	/* TODO: Add relationship data option!!! */
 	
 	/**
 	 * @return the collection of Class Box data

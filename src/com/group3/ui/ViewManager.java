@@ -32,7 +32,7 @@ import com.group3.ui.listener.WindowContainerListener;
 public class ViewManager {
 	
 	private DataManager dataRef;
-	private boolean exit;
+	private boolean exit, showRelationshipHint;
 	
 	private JFrame windowFrame;
 	private UMLScene umlScene;
@@ -80,6 +80,8 @@ public class ViewManager {
 		this.windowFrame.pack();
 		this.windowFrame.setVisible(true);
 		this.windowFrame.setLocationRelativeTo(null); //get window to be centered
+		
+		this.showRelationshipHint = true;
 	}
 	
 	/**
@@ -185,8 +187,8 @@ public class ViewManager {
 	 * @param classBox the Class Box to remove
 	 */
 	public void removeClassBox(ClassBox classBox) {
-		this.dataRef.removeClassBoxData(classBox.getId());
 		classBox.doDefaultCloseAction();
+		this.dataRef.removeClassBoxData(classBox.getId());
 		this.umlScene.remove(classBox);
 		this.umlScene.repaint();
 	}
@@ -346,9 +348,21 @@ public class ViewManager {
 	
 	public void startRelationshipSelection(int relationshipType) {
 		
-		JOptionPane.showMessageDialog(this.windowFrame, 
-									  "Select two Class Boxes to link with the relationship.",
-									  "Hint", JOptionPane.INFORMATION_MESSAGE);
+		if(this.umlScene.getComponents().length < 2) {
+			JOptionPane.showMessageDialog(this.windowFrame,
+										  "You have at least 2 Class Boxes on screen to " +
+										  "form a relationship", "Error",
+										  JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
+		if(this.showRelationshipHint) {
+			JOptionPane.showMessageDialog(this.windowFrame, 
+					  					  "Select two Class Boxes to link with the relationship.",
+					  					  "Hint", JOptionPane.INFORMATION_MESSAGE);
+			this.showRelationshipHint = false;
+		}
+		
 		
 		ClassBox classBox = (ClassBox)this.umlScene.getSelectedFrame();
 		if(classBox != null) {

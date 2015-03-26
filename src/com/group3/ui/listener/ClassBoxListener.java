@@ -83,11 +83,7 @@ public class ClassBoxListener implements ActionListener, ComponentListener, Focu
 	public void componentShown(ComponentEvent e) {}
 
 	@Override
-	public void focusGained(FocusEvent e) {
-		if(this.classBox.isSelectable()) {
-			this.viewManager.getRelationshipSelectionManager().addSelection(classBox);
-		}
-	}
+	public void focusGained(FocusEvent e) {}
 
 	@Override
 	public void focusLost(FocusEvent e) {
@@ -101,6 +97,7 @@ public class ClassBoxListener implements ActionListener, ComponentListener, Focu
 	public void internalFrameActivated(InternalFrameEvent e) {
 		if(this.classBox.isSelectable()) {
 			this.classBox.setBorderColor(Color.BLUE);
+			this.viewManager.getRelationshipSelectionManager().addSelection(classBox);
 		}
 	}
 

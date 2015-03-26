@@ -1,6 +1,8 @@
 package com.group3.ui;
 
+import java.awt.Color;
 import java.awt.Font;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyVetoException;
 import java.io.File;
@@ -65,6 +67,8 @@ public class ViewManager {
 		this.windowFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		
 		this.windowFrame.addWindowListener(windowContainerListener);
+		KeyboardFocusManager.getCurrentKeyboardFocusManager()
+			.addKeyEventDispatcher(windowContainerListener);
 		
 		/* Menu Bar */
 		this.windowFrame.setJMenuBar(createMenuBar(menuListener));
@@ -73,6 +77,7 @@ public class ViewManager {
 		this.umlScene = new UMLScene(this.dataRef);
 		this.umlScene.setDragMode(JDesktopPane.LIVE_DRAG_MODE);
 		this.umlScene.setDoubleBuffered(true);
+		this.umlScene.setBackground(Color.WHITE);
 		UMLSceneManager umlSceneManager = new UMLSceneManager(this.dataRef);
 		this.umlScene.setDesktopManager(umlSceneManager);
 		this.windowFrame.add(this.umlScene);
@@ -358,11 +363,13 @@ public class ViewManager {
 		
 		if(this.showRelationshipHint) {
 			JOptionPane.showMessageDialog(this.windowFrame, 
-					  					  "Select two Class Boxes to link with the relationship.",
+					  					  "Select two Class Boxes to link with the relationship.\n\n" +
+					  					  "Hit ESC to cancel relationship placement.",
 					  					  "Hint", JOptionPane.INFORMATION_MESSAGE);
 			this.showRelationshipHint = false;
 		}
 		
+		this.umlScene.setBackground(Color.GRAY);
 		
 		ClassBox classBox = (ClassBox)this.umlScene.getSelectedFrame();
 		if(classBox != null) {
@@ -382,13 +389,32 @@ public class ViewManager {
 		}
 	}
 	
+	/**
+	 * This methods ends a selection event and changes the view back to normal.
+	 * 
+	 * startRelationshipSelection() must be called before this method
+	 */
 	public void endRelationshipSelection() {
+		
+		if(this.umlScene.getBackground() == Color.WHITE) {
+			return;
+		}
+		
+		this.umlScene.setBackground(Color.WHITE);
+		
 		for(JInternalFrame entry : this.umlScene.getAllFrames()) {
 			ClassBox c = (ClassBox)entry;
 			c.setSelectable(false);
+			c.setBorderColor(Color.BLACK);
 		}
 	}
 	
+	/**
+	 * Get a reference to the Relationship Selection Manager,
+	 * which helps keep track of which Class Boxes are selected.
+	 * 
+	 * @return the Relationsip Selection Manager
+	 */
 	public RelationshipSelectionManager getRelationshipSelectionManager() {
 		return this.relSelManager;
 	}

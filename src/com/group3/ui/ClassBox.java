@@ -9,6 +9,7 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.MouseListener;
+import java.util.Iterator;
 import java.util.Stack;
 
 import javax.swing.BorderFactory;
@@ -118,7 +119,7 @@ public class ClassBox extends JInternalFrame {
 		this.titlePanel.setBorder(BorderFactory.createMatteBorder(0, 0, 4, 0, Color.BLACK));
 		
 		this.titlePanel.addFocusListener(this.classBoxListener);
-		this.titlePanel.setCursor(moveCursor());
+		this.titlePanel.setCursor(createMoveCursor());
 
 		this.add(this.titlePanel);
 	}
@@ -133,6 +134,8 @@ public class ClassBox extends JInternalFrame {
 		JTextArea textArea = new JTextArea();
 		textArea.setBackground(Color.GRAY.brighter());
 		textArea.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+		textArea.setLineWrap(true);
+		textArea.setWrapStyleWord(true);
 		textArea.setForeground(Color.BLACK);
 		if(this.addBorder) {
 			textArea.setBorder(
@@ -206,7 +209,7 @@ public class ClassBox extends JInternalFrame {
 	 * 
 	 * @return c returns the custom cursor
 	 */
-	public Cursor moveCursor() {
+	public Cursor createMoveCursor() {
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		Image image = toolkit.getImage(ClassLoader.getSystemResource("cursor.png"));
 		Cursor c = toolkit.createCustomCursor(image, new Point(10, 10), "img");
@@ -261,10 +264,29 @@ public class ClassBox extends JInternalFrame {
 	 * This option gets turned on when a relationship has been chosen and Class Boxes for the
 	 * relationship are getting selected.
 	 * 
+	 * This option will make all Class Boxes clicked turn blue and change the cursor
+	 * for all objects to a hand.
+	 * 
 	 * @param s the value to set the selectable property
 	 */
 	public void setSelectable(boolean s) {
 		this.selectable = s;
+		
+		Cursor cursor;
+		if(this.selectable) {
+			cursor = new Cursor(Cursor.HAND_CURSOR);
+			this.titlePanel.setCursor(cursor);	
+		} else {
+			this.titlePanel.setCursor(createMoveCursor());
+			cursor = new Cursor(Cursor.TEXT_CURSOR);
+		}
+		
+		this.titleTextArea.setCursor(cursor);
+		
+		Iterator<JTextArea> area = this.textStack.iterator();
+		while(area.hasNext()) {
+			area.next().setCursor(cursor);
+		}
 	}
 	
 	/**
@@ -274,5 +296,4 @@ public class ClassBox extends JInternalFrame {
 	public void setBorderColor(Color color) {
 		this.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, color));
 	}
-
 }

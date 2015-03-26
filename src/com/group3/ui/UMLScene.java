@@ -22,10 +22,10 @@ import com.group3.data.RelationshipData;
 public class UMLScene extends JDesktopPane {
 	
 	private static final int HEIGHT = 30;
-	private static final int LINE = 0, TRIANGLE = 1, ARROW = 2;
+	private static final int LINE = 0, TRIANGLE = 1, ARROW = 2, DIAMOND = 3;
 	
 	private DataManager dataManager;
-	private Polygon[] polygons = new Polygon[5];
+	private Polygon[] polygons = new Polygon[4];
 	
 	public UMLScene(DataManager dataManager) {
 		this.dataManager = dataManager;
@@ -53,7 +53,14 @@ public class UMLScene extends JDesktopPane {
 		arrow.addPoint(20, 17);	
 		this.polygons[UMLScene.ARROW] = arrow;
 		
-		
+		Polygon diamond = new Polygon();
+		diamond.addPoint(7, 0);
+		diamond.addPoint(0, 10);
+		diamond.addPoint(7, 20);
+		diamond.addPoint(7, 30);
+		diamond.addPoint(7, 20);
+		diamond.addPoint(14, 10);
+		this.polygons[UMLScene.DIAMOND] = diamond;
 	}
 	
 	/**
@@ -66,8 +73,6 @@ public class UMLScene extends JDesktopPane {
 	 */
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		
-		System.out.println("Ran");
 		
 		Graphics2D g2d = (Graphics2D)g;
 		
@@ -89,15 +94,13 @@ public class UMLScene extends JDesktopPane {
 					drawConnection(g2d, entry.getSourceClassBox(), entry.getDestinationClassBox());
 					break;
 				case RelationshipData.AGGREGATION:
-					//TODO: Add diamond head
 					drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), 0, false);
-					drawPolygon(g2d, polygons[UMLScene.LINE], entry.getDestinationClassBox(), 0, false);
+					drawPolygon(g2d, polygons[UMLScene.DIAMOND], entry.getDestinationClassBox(), 0, false);
 					drawConnection(g2d, entry.getSourceClassBox(), entry.getDestinationClassBox());
 					break;
 				case RelationshipData.COMPOSITION:
-					//TODO: Same as above but filled in
 					drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), 0, false);
-					drawPolygon(g2d, polygons[UMLScene.LINE], entry.getDestinationClassBox(), 0, false);
+					drawPolygon(g2d, polygons[UMLScene.DIAMOND], entry.getDestinationClassBox(), 0, true);
 					drawConnection(g2d, entry.getSourceClassBox(), entry.getDestinationClassBox());
 					break;
 				case RelationshipData.GENERALIZATION:

@@ -111,10 +111,10 @@ public class ViewManager {
 		add.add(createMenuItem("Class Box", font, menuListener, "ALT", "C"));
 		JMenuItem relationship = new JMenu("Relationship");
 		relationship.setFont(font);
-		relationship.add(createMenuItem("Basic", font, menuListener, "ALT", "B"));
+		relationship.add(createMenuItem("Association", font, menuListener, "ALT", "B"));
 		relationship.add(createMenuItem("Dependency", font, menuListener, "ALT", "D"));
 		relationship.add(createMenuItem("Aggregation", font, menuListener, "ALT", "A"));
-		relationship.add(createMenuItem("Composition", font, menuListener, "ALT", "C"));
+		relationship.add(createMenuItem("Composition", font, menuListener, "ALT", "I"));
 		relationship.add(createMenuItem("Generalization", font, menuListener, "ALT", "G"));
 		add.add(relationship);
 

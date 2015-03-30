@@ -1,19 +1,29 @@
 package com.group3.ui;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.MouseListener;
+import java.util.Iterator;
 import java.util.Stack;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextArea;
+import javax.swing.plaf.basic.BasicInternalFrameUI;
 
 import com.group3.ui.listener.ClassBoxListener;
-import com.group3.ui.listener.PopupListener;
+import com.group3.ui.listener.MouseDragListener;
+import com.group3.ui.listener.MouseEventListener;
 
 
 /**
@@ -24,10 +34,13 @@ import com.group3.ui.listener.PopupListener;
 public class ClassBox extends JInternalFrame {
 	
 	private int id = 0;
-	private boolean addBorder = false;
+	private boolean addBorder = false, selectable = false;
 	private MouseListener popupListener;
 	private ClassBoxListener classBoxListener;
+	private JTextArea titleTextArea;
+	private JPanel titlePanel;
 	private Stack<JTextArea> textStack;
+
 	
 	/**
 	 * A view representing a Class Box
@@ -36,13 +49,34 @@ public class ClassBox extends JInternalFrame {
 	 * @param id integer id used as a reference to this boxes data component
 	 */
 	public ClassBox(String title, ViewManager viewRef) {
-		super(title, true); //JInternalFrame title, resizability
-		
+		super("", true); //JInternalFrame title, resizable
+
+		this.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, Color.BLACK));
+		this.setBackground(Color.GRAY.brighter());
 		this.setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		this.textStack = new Stack<JTextArea>();
+
+		BasicInternalFrameUI basic = (BasicInternalFrameUI)this.getUI();
+		basic.setNorthPane(null);
 		
+		this.classBoxListener = new ClassBoxListener(viewRef, this);
+		this.addInternalFrameListener(this.classBoxListener);
+        this.addComponentListener(this.classBoxListener);
+
+		createTitleBox(title);
 		createPopupMenu(viewRef);
 		createTextBox();
+		addDrag();
+		
+	}
+
+	/**
+	 * adds dragging capability 
+	 */
+	private void addDrag() {
+		MouseDragListener dragListener = new MouseDragListener(this);
+		this.titlePanel.addMouseListener(dragListener);
+		this.titlePanel.addMouseMotionListener(dragListener);
 	}
 	
 	/**
@@ -51,7 +85,6 @@ public class ClassBox extends JInternalFrame {
 	 */
 	private void createPopupMenu(ViewManager viewRef) {
         JMenuItem menuItem;
-        this.classBoxListener = new ClassBoxListener(viewRef, this);
         //Create the popup menu.
         JPopupMenu popup = new JPopupMenu();
         menuItem = new JMenuItem("Add Section");
@@ -64,9 +97,31 @@ public class ClassBox extends JInternalFrame {
         menuItem.addActionListener(this.classBoxListener);
         popup.add(menuItem);
  
-        this.popupListener = new PopupListener(popup);
+        this.popupListener = new MouseEventListener(popup);
         this.addMouseListener(this.popupListener);
-        this.addComponentListener(this.classBoxListener);
+	}
+	
+	/**
+	 * Adds an editable title to the class Box
+	 * Border is added to the bottom of the JPanel to reflect the border added to text Boxes
+	 * Cursor is set to a custom move cursor to show the user is able to drag this classBox from this JPanel
+	 */
+	public void createTitleBox(String title) {
+
+		this.titlePanel = new JPanel();
+
+		this.titleTextArea = new JTextArea(title, 1, 1);
+		this.titleTextArea.setBackground(Color.GRAY.brighter());
+		this.titleTextArea.setForeground(Color.BLACK);
+		this.titleTextArea.setFont(new Font("Times New Roman", Font.BOLD, 14));
+		this.titlePanel.add(this.titleTextArea);
+		this.titlePanel.setBackground(Color.GRAY.brighter());
+		this.titlePanel.setBorder(BorderFactory.createMatteBorder(0, 0, 4, 0, Color.BLACK));
+		
+		this.titlePanel.addFocusListener(this.classBoxListener);
+		this.titlePanel.setCursor(createMoveCursor());
+
+		this.add(this.titlePanel);
 	}
 	
 	/**
@@ -77,11 +132,23 @@ public class ClassBox extends JInternalFrame {
 	 */
 	public void createTextBox() {
 		JTextArea textArea = new JTextArea();
+		textArea.setBackground(Color.GRAY.brighter());
+		textArea.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+		textArea.setLineWrap(true);
+		textArea.setWrapStyleWord(true);
+		textArea.setForeground(Color.BLACK);
 		if(this.addBorder) {
-			textArea.setBorder(BorderFactory.createMatteBorder(4, 0, 0, 0, Color.BLACK));
+			textArea.setBorder(
+					BorderFactory.createCompoundBorder(
+							BorderFactory.createMatteBorder(4, 0, 0, 0, Color.BLACK), 
+							BorderFactory.createEmptyBorder(5, 5, 5, 5)
+						)
+					);
 		} else {
 			this.addBorder = true;
+			textArea.setMargin(new Insets(5, 5, 5, 5));
 		}
+
 		textArea.addMouseListener(this.popupListener);
 		textArea.addFocusListener(this.classBoxListener);
 		this.add(textArea);
@@ -102,9 +169,12 @@ public class ClassBox extends JInternalFrame {
 		this.revalidate();
 	}
 	
+	/**
+	 * @return string array representation of the data within the text boxes, starting with the title box
+	 */
 	public String[] getArrayRepresentation() {
 		String[] content = new String[this.textStack.size() + 1];
-		content[0] = this.getTitle();
+		content[0] = this.titleTextArea.getText();
 		
 		for(int i = 0; i < this.textStack.size(); ++i) {
 			content[i + 1] = textStack.get(i).getText();
@@ -133,6 +203,19 @@ public class ClassBox extends JInternalFrame {
 			this.id = id;
 		}
 	}
+	/**
+	 * creates a custom cursor using a local png file. 
+	 * Reason is Mac systems appear to not recognize when using Java's own 'MOVE_CURSOR' 
+	 * 
+	 * @return c returns the custom cursor
+	 */
+	public Cursor createMoveCursor() {
+		Toolkit toolkit = Toolkit.getDefaultToolkit();
+		Image image = toolkit.getImage(ClassLoader.getSystemResource("cursor.png"));
+		Cursor c = toolkit.createCustomCursor(image, new Point(10, 10), "img");
+		
+		return c;
+	}
 	
 	/**
 	 * @return the unique id that ties this object to its data member
@@ -156,7 +239,7 @@ public class ClassBox extends JInternalFrame {
 		int height = Integer.parseInt(info[3]);
 		this.setLocation(posX, posY);
 		this.setSize(width, height);
-		this.setTitle(pieces[1]);
+		this.titleTextArea.setText(pieces[1]);
 		
 		for(int i = 2; i < pieces.length; ++i) {
 			if(i > 2) {
@@ -167,5 +250,50 @@ public class ClassBox extends JInternalFrame {
 			textArea.setText(pieces[i]);
 		}
 	}
-
+	
+	/**
+	 * @return can this component be selected for a relationship
+	 */
+	public boolean isSelectable() {
+		return this.selectable;
+	}
+	
+	/**
+	 * Set whether this Class Box can be selected.
+	 * 
+	 * This option gets turned on when a relationship has been chosen and Class Boxes for the
+	 * relationship are getting selected.
+	 * 
+	 * This option will make all Class Boxes clicked turn blue and change the cursor
+	 * for all objects to a hand.
+	 * 
+	 * @param s the value to set the selectable property
+	 */
+	public void setSelectable(boolean s) {
+		this.selectable = s;
+		
+		Cursor cursor;
+		if(this.selectable) {
+			cursor = new Cursor(Cursor.HAND_CURSOR);
+			this.titlePanel.setCursor(cursor);	
+		} else {
+			this.titlePanel.setCursor(createMoveCursor());
+			cursor = new Cursor(Cursor.TEXT_CURSOR);
+		}
+		
+		this.titleTextArea.setCursor(cursor);
+		
+		Iterator<JTextArea> area = this.textStack.iterator();
+		while(area.hasNext()) {
+			area.next().setCursor(cursor);
+		}
+	}
+	
+	/**
+	 * Sets the border color of the class box
+	 * @param color color to set the border to
+	 */
+	public void setBorderColor(Color color) {
+		this.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, color));
+	}
 }

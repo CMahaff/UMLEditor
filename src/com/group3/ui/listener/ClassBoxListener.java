@@ -1,5 +1,6 @@
 package com.group3.ui.listener;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -8,15 +9,18 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
 import javax.swing.JOptionPane;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.InternalFrameListener;
 
+import com.group3.data.DataManager;
 import com.group3.ui.ClassBox;
 import com.group3.ui.ViewManager;
 
 /**
  * @author Connor Mahaffey
- * 		   David Mengel
+ * 		   Dave Mengel
  */
-public class ClassBoxListener implements ActionListener, ComponentListener, FocusListener {
+public class ClassBoxListener implements ActionListener, ComponentListener, FocusListener, InternalFrameListener {
 	
 	private ViewManager viewManager;
 	private ClassBox classBox;
@@ -50,23 +54,69 @@ public class ClassBoxListener implements ActionListener, ComponentListener, Focu
 	public void componentHidden(ComponentEvent e) {}
 
 	@Override
-	public void componentMoved(ComponentEvent e) {}
+	public void componentMoved(ComponentEvent e) {
+		if(this.viewManager == null) {
+			return;
+		}
+		
+		DataManager dm = this.viewManager.getDataManager();
+		dm.updateClassBoxDataWindow(this.classBox.getId(), 
+									this.classBox.getX(), this.classBox.getY(), 
+									this.classBox.getWidth(), this.classBox.getHeight());
+		this.viewManager.repaintUML();
+	}
 
 	@Override
 	public void componentResized(ComponentEvent e) {
-		this.viewManager.getDataManager().updateClassBoxData(this.classBox);
+		if(this.viewManager == null) {
+			return;
+		}
+		
+		DataManager dm = this.viewManager.getDataManager();
+		dm.updateClassBoxDataWindow(this.classBox.getId(), 
+									this.classBox.getX(), this.classBox.getY(), 
+									this.classBox.getWidth(), this.classBox.getHeight());
+		this.viewManager.repaintUML();
 	}
 
 	@Override
 	public void componentShown(ComponentEvent e) {}
 
 	@Override
-	public void focusGained(FocusEvent arg0) {}
+	public void focusGained(FocusEvent e) {}
 
 	@Override
-	public void focusLost(FocusEvent arg0) {
-		this.viewManager.getDataManager().updateClassBoxData(this.classBox);
-		//TODO: On shortcut key press, focus not lost, so text not saved to latest version?
+	public void focusLost(FocusEvent e) {
+		this.viewManager.getDataManager().updateClassBoxData(this.classBox.getId(), 
+														 	 this.classBox.getX(), this.classBox.getY(), 
+														 	 this.classBox.getWidth(), this.classBox.getHeight(), 
+														 	 this.classBox.getArrayRepresentation());
 	}
+
+	@Override
+	public void internalFrameActivated(InternalFrameEvent e) {
+		if(this.classBox.isSelectable()) {
+			this.classBox.setBorderColor(Color.BLUE);
+			this.viewManager.getRelationshipSelectionManager().addSelection(classBox);
+		}
+	}
+
+	@Override
+	public void internalFrameDeactivated(InternalFrameEvent e) {}
+	
+	@Override
+	public void internalFrameClosed(InternalFrameEvent e) {}
+
+	@Override
+	public void internalFrameClosing(InternalFrameEvent e) {}
+
+	@Override
+	public void internalFrameDeiconified(InternalFrameEvent e) {}
+
+	@Override
+	public void internalFrameIconified(InternalFrameEvent e) {}
+
+	@Override
+	public void internalFrameOpened(InternalFrameEvent e) {}
 
 }

@@ -1,8 +1,8 @@
 package com.group3.ui;
 
+import java.awt.Color;
 import java.awt.Font;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyVetoException;
 import java.io.File;
@@ -10,12 +10,12 @@ import java.io.File;
 import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
-
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -24,6 +24,7 @@ import com.group3.data.DataManager;
 import com.group3.ui.listener.MenuListener;
 import com.group3.ui.listener.UMLSceneManager;
 import com.group3.ui.listener.WindowContainerListener;
+
 //import com.sun.glass.events.KeyEvent; not sure what this is for, gives error when uncommented
 
 /**
@@ -33,19 +34,17 @@ import com.group3.ui.listener.WindowContainerListener;
 public class ViewManager {
 	
 	private DataManager dataRef;
-	private boolean exit;
+	private boolean exit, showRelationshipHint;
 	
 	private JFrame windowFrame;
 	private UMLScene umlScene;
 	
 	//Arrays to provide the KeyEvents and KeyMasks for menu options
-	private final int[] keyArray = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57};
-	private final int[] maskArray = {8, 2, 1};
-	
+	private KeyboardShortcuts keyboardShortcuts = new KeyboardShortcuts();
 	private File saveFile = null;
 	
-	//Vars needed for testing
-
+	private RelationshipSelectionManager relSelManager;
+	
 	
 	/**
 	 * Create listeners for our windows which report back to this object.
@@ -53,7 +52,10 @@ public class ViewManager {
 	 * Create our main window, which has a Menu Bar and a Window Manager
 	 * for our UML Diagram itself.
 	 */
-	public ViewManager() {
+	public ViewManager(DataManager dataRef) {
+		
+		this.dataRef = dataRef;
+		
 		/* Listeners */
 		WindowContainerListener windowContainerListener 
 			= new WindowContainerListener(this);
@@ -62,24 +64,29 @@ public class ViewManager {
 		/* Window Frame */
 		this.windowFrame = new JFrame();
 		this.windowFrame.setTitle("UML Editor " + Main.version);
-		this.windowFrame.setLocationRelativeTo(null); //get window to be centered
 		this.windowFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		
 		this.windowFrame.addWindowListener(windowContainerListener);
+		KeyboardFocusManager.getCurrentKeyboardFocusManager()
+			.addKeyEventDispatcher(windowContainerListener);
 		
 		/* Menu Bar */
 		this.windowFrame.setJMenuBar(createMenuBar(menuListener));
 		
 		/* UML Diagram Background and Windows */
-		this.umlScene = new UMLScene();
+		this.umlScene = new UMLScene(this.dataRef);
 		this.umlScene.setDragMode(JDesktopPane.LIVE_DRAG_MODE);
 		this.umlScene.setDoubleBuffered(true);
-		UMLSceneManager umlSceneManager = new UMLSceneManager();
+		this.umlScene.setBackground(Color.WHITE);
+		UMLSceneManager umlSceneManager = new UMLSceneManager(this.dataRef);
 		this.umlScene.setDesktopManager(umlSceneManager);
-		this.windowFrame.add(umlScene);
+		this.windowFrame.add(this.umlScene);
 		
 		this.windowFrame.pack();
 		this.windowFrame.setVisible(true);
+		this.windowFrame.setLocationRelativeTo(null); //get window to be centered
+		
+		this.showRelationshipHint = true;
 	}
 	
 	/**
@@ -88,24 +95,35 @@ public class ViewManager {
 	 * @return the JMenuBar for the program
 	 */
 	private JMenuBar createMenuBar(MenuListener menuListener) {
+		//adds native feel to Mac Systems
+		System.setProperty("apple.laf.useScreenMenuBar", "true");
+		System.setProperty("com.apple.mrj.application.apple.menu.about.name", "UML Editor");
 		Font font = new Font("Times New Roman", Font.PLAIN, 18);
 		
 		JMenuBar menuBar = new JMenuBar();
-				
+			
+	
 		JMenu file = new JMenu("File");
 		file.setFont(font);
-		/* setAccelerator sets keyboard shortcuts for the actions*/
-		file.add(createMenuItem("Open", font, menuListener, keyArray[1], maskArray[0]));
-		file.add(createMenuItem("Save", font, menuListener, keyArray[2], maskArray[0]));
-		file.add(createMenuItem("Save As", font, menuListener, keyArray[3], maskArray[0]));
-		file.add(createMenuItem("Exit", font, menuListener, keyArray[4], maskArray[0]));
+		file.add(createMenuItem("New", font, menuListener, "CTRL", "N"));
+		file.add(createMenuItem("Open", font, menuListener, "CTRL", "O"));
+		file.add(createMenuItem("Save", font, menuListener, "CTRL", "S"));
+		file.add(createMenuItem("Save As", font, menuListener, "CTRL", "A"));
+		file.add(createMenuItem("Exit", font, menuListener, "CTRL", "E"));
 		menuBar.add(file);
 		
 		JMenu add = new JMenu("Add");
 		add.setFont(font);
 
-		add.add(createMenuItem("Class Box", font, menuListener, keyArray[1], maskArray[1]));
-		add.add(createMenuItem("Connector", font, menuListener, keyArray[2], maskArray[1]));
+		add.add(createMenuItem("Class Box", font, menuListener, "ALT", "C"));
+		JMenuItem relationship = new JMenu("Relationship");
+		relationship.setFont(font);
+		relationship.add(createMenuItem("Association", font, menuListener, "ALT", "B"));
+		relationship.add(createMenuItem("Dependency", font, menuListener, "ALT", "D"));
+		relationship.add(createMenuItem("Aggregation", font, menuListener, "ALT", "A"));
+		relationship.add(createMenuItem("Composition", font, menuListener, "ALT", "I"));
+		relationship.add(createMenuItem("Generalization", font, menuListener, "ALT", "G"));
+		add.add(relationship);
 
 		menuBar.add(add);
 		
@@ -119,17 +137,24 @@ public class ViewManager {
 	 * @param listener listener for the option
 	 * @return a JMenuItem
 	 */
-	private JMenuItem createMenuItem(String text, Font font, MenuListener listener, int key, int mask) {
+	private JMenuItem createMenuItem(String text, Font font, MenuListener listener, String key, String mask) {
 		/* KeyEvent.VK_T allows the user to toggle through the menu by pressing T
 		 * They have to be in the menu for this to work. */
+		int keyStroke = keyboardShortcuts.checkKey(key);
+		int keyMask = keyboardShortcuts.checkKey(mask);
+		
 		JMenuItem item = new JMenuItem(text, KeyEvent.VK_T);
-		item.setAccelerator(KeyStroke.getKeyStroke(key ,mask));
+		item.setAccelerator(KeyStroke.getKeyStroke(keyMask , keyStroke));
 		item.addActionListener(listener);
 		item.setFont(font);
 		
 		return item;
 	}
 	
+	/**
+	 * Runs the UI routine to create a Class Box,
+	 * including prompting for the name
+	 */
 	public void addClassBox() {
 		Object[] titleText = null;
 		String title = (String)JOptionPane.
@@ -143,10 +168,12 @@ public class ViewManager {
 
 		ClassBox classBox = new ClassBox(title, this);
 		classBox.setLocation(30, 30);
+
 		classBox.setVisible(true);
 		classBox.setSize(200, 300);
 		
-		int id = this.dataRef.addClassBoxData(classBox);
+		int id = this.dataRef.addClassBoxData(classBox.getX(), classBox.getY(), 
+											  classBox.getWidth(), classBox.getHeight(), title);
 		classBox.setId(id);
 		
 		this.umlScene.add(classBox);
@@ -156,12 +183,19 @@ public class ViewManager {
 		} catch (PropertyVetoException e) {
 			System.err.println("Class Box could not be selected.");
 		}
+		
+		this.umlScene.repaint();
 	}
 	
+	/**
+	 * Removes a Class Box from the view
+	 * @param classBox the Class Box to remove
+	 */
 	public void removeClassBox(ClassBox classBox) {
-		this.dataRef.removeClassBoxData(classBox.getId());
 		classBox.doDefaultCloseAction();
+		this.dataRef.removeClassBoxData(classBox.getId());
 		this.umlScene.remove(classBox);
+		this.umlScene.repaint();
 	}
 	
 	/**
@@ -174,6 +208,20 @@ public class ViewManager {
 		System.exit(0);
 	}
 	
+	/**
+	 * Runs the UI routines to open a new (empty) UML diagram.
+	 */
+	public void newUML() {
+		this.umlScene.removeAll();
+		this.dataRef.clearData();
+		this.umlScene.repaint();
+		this.saveFile = null;
+		this.windowFrame.setTitle("UML Editor " + Main.version);
+	}
+	
+	/**
+	 * Runs the UI routines to open a UML diagram.
+	 */
 	public void open() {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setDialogTitle("Open UML Diagram");
@@ -197,6 +245,7 @@ public class ViewManager {
 				
 				//load text data from file
 				this.saveFile = file;
+				this.windowFrame.setTitle("UML Editor " + Main.version + " - " + file.getName());
 				String[] classBoxes = this.dataRef.loadModel(this.saveFile);
 				
 				//create new class boxes and add them back to the model
@@ -206,15 +255,26 @@ public class ViewManager {
 					classBox.loadFromTextData(classBoxes[i]);
 					classBox.setVisible(true);
 					
-					int id = this.dataRef.addClassBoxData(classBox);
+					int id = this.dataRef.addClassBoxData(classBox.getX(), classBox.getY(),
+														  classBox.getWidth(), classBox.getHeight(), 
+														  classBox.getArrayRepresentation());
 					classBox.setId(id);
 					
 					this.umlScene.add(classBox);
 				}
+				this.umlScene.repaint();
 			}
 		}
 	}
 	
+	/**
+	 * Runs the UI routine to save a UML diagram
+	 * that we already opened and/or saved. This
+	 * will not prompt for a location to save.
+	 * 
+	 * If we don't have a name to save the file as,
+	 * this will call saveAs().
+	 */
 	public void save() {
 		if(this.saveFile == null) {
 			saveAs();
@@ -227,6 +287,10 @@ public class ViewManager {
 		}
 	}
 	
+	/**
+	 * Runs the UI routines to save a file
+	 * with a given name.
+	 */
 	public void saveAs() {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setDialogTitle("Save UML As");
@@ -242,6 +306,25 @@ public class ViewManager {
 				this.saveFile = new File(this.saveFile.getAbsoluteFile().toString().concat(".uml"));
 			}
 			dataRef.saveModel(this.saveFile);
+			this.windowFrame.setTitle("UML Editor " + Main.version + " - " + this.saveFile.getName());
+		}
+	}
+	
+	/**
+	 * Many events trigger the view to update the data representation of the Class Box. For
+	 * text entry, this is a FocusLost event, meaning the contents of the text will be saved
+	 * when you select another text area, another text box, or open the save menu.
+	 * 
+	 * This fails when a key binding is used to save the UML diagram, the keybinding
+	 * does not trigger a FocusChange event. This method will find the currently selected
+	 * Class Box and force its data to update before saving.
+	 */
+	public void updateSelectedClassBoxChanges() {
+		ClassBox classBox = (ClassBox) this.umlScene.getSelectedFrame();
+		if(classBox != null) {
+			this.dataRef.updateClassBoxData(classBox.getId(), classBox.getX(), classBox.getY(), 
+											classBox.getWidth(), classBox.getHeight(), 
+											classBox.getArrayRepresentation());
 		}
 	}
 	
@@ -253,19 +336,87 @@ public class ViewManager {
 	}
 	
 	/**
-	 * @param dm reference to the Data Manager
-	 */
-	public void setDataManager(DataManager dataManager) {
-		this.dataRef = dataManager;
-		UMLSceneManager sceneManager = (UMLSceneManager) this.umlScene.getDesktopManager();
-		sceneManager.setDataRef(dataManager);
-	}
-	
-	/**
 	 * @return Reference to the Data Manager
 	 */
 	public DataManager getDataManager() {
 		return this.dataRef;
+	}
+	
+	/**
+	 * Calls the repaint method on the UML diagram.
+	 * 
+	 * This is used to ensure arrows are redrawn as window components change.
+	 */
+	public void repaintUML() {
+		this.umlScene.repaint();
+	}
+	
+	public void startRelationshipSelection(int relationshipType) {
+		
+		if(this.umlScene.getComponents().length < 2) {
+			JOptionPane.showMessageDialog(this.windowFrame,
+										  "You have at least 2 Class Boxes on screen to " +
+										  "form a relationship", "Error",
+										  JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
+		if(this.showRelationshipHint) {
+			JOptionPane.showMessageDialog(this.windowFrame, 
+					  					  "Select two Class Boxes to link with the relationship.\n\n" +
+					  					  "Hit ESC to cancel relationship placement.",
+					  					  "Hint", JOptionPane.INFORMATION_MESSAGE);
+			this.showRelationshipHint = false;
+		}
+		
+		this.umlScene.setBackground(Color.GRAY);
+		
+		ClassBox classBox = (ClassBox)this.umlScene.getSelectedFrame();
+		if(classBox != null) {
+			try {
+				classBox.setSelected(false);
+			} catch (PropertyVetoException e) {
+				System.err.println("Class Box could not be unselected.");
+				System.exit(1);
+			}
+		}
+		
+		this.relSelManager = new RelationshipSelectionManager(this, relationshipType);
+		
+		for(JInternalFrame entry : this.umlScene.getAllFrames()) {
+			ClassBox c = (ClassBox)entry;
+			c.setSelectable(true);
+		}
+	}
+	
+	/**
+	 * This methods ends a selection event and changes the view back to normal.
+	 * 
+	 * startRelationshipSelection() must be called before this method
+	 */
+	public void endRelationshipSelection() {
+		
+		if(this.umlScene.getBackground() == Color.WHITE) {
+			return;
+		}
+		
+		this.umlScene.setBackground(Color.WHITE);
+		
+		for(JInternalFrame entry : this.umlScene.getAllFrames()) {
+			ClassBox c = (ClassBox)entry;
+			c.setSelectable(false);
+			c.setBorderColor(Color.BLACK);
+		}
+	}
+	
+	/**
+	 * Get a reference to the Relationship Selection Manager,
+	 * which helps keep track of which Class Boxes are selected.
+	 * 
+	 * @return the Relationsip Selection Manager
+	 */
+	public RelationshipSelectionManager getRelationshipSelectionManager() {
+		return this.relSelManager;
 	}
 	
 }

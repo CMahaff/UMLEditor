@@ -11,16 +11,11 @@ import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
 
-import com.group3.ui.ClassBox;
-import com.group3.ui.ViewManager;
-
 /**
  * @author Connor Mahaffey
  *         Brady Landis
  */
 public class DataManager {
-	
-	private ViewManager viewRef;
 	
 	private int index;
 	private TreeMap<Integer, ClassBoxData> classBoxes;
@@ -30,10 +25,7 @@ public class DataManager {
 	 * Manages all data for saving, reloading, etc. using a system
 	 * of unique integer id's.
 	 * 
-	 * TODO: Update data as it changes, including removing data if a Class Box is deleted.
-	 * TODO: Add save and load abilities.
 	 * TODO: Be able to hand undo's with a stack-like structure?
-	 * 
 	 */
 	public DataManager() {
 		index = 0;
@@ -44,18 +36,38 @@ public class DataManager {
 	/**
 	 * Add new Class Box Data to the Data Manager
 	 * 
-	 * TODO: Add label information.
+	 * @param locX the x location of the Class Box
+	 * @param locY the y location of the Class Box
+	 * @param width the width of the Class Box
+	 * @param height the height of the Class Box
+	 * @param data the data inside the Class Box sections
 	 * 
-	 * @param classBox the Class Box this data belongs to
 	 * @return id for this new Class Box
 	 */
-	public int addClassBoxData(ClassBox classBox) {
-		ClassBoxData classBoxData = 
-				new ClassBoxData(classBox.getLocation().x,
-								 classBox.getLocation().y,
-								 classBox.getWidth(),
-								 classBox.getHeight(),
-								 new String[0]);
+	public int addClassBoxData(int locX, int locY, int width, int height, String[] data) {
+		ClassBoxData classBoxData = new ClassBoxData(locX, locY,
+													 width, height, data);
+		index++;
+		this.classBoxes.put(index, classBoxData);
+		
+		return index;
+	}
+	
+	/**
+	 * Add new Class Box Data to the Data Manager
+	 * 
+	 * @param locX the x location of the Class Box
+	 * @param locY the y location of the Class Box
+	 * @param width the width of the Class Box
+	 * @param height the height of the Class Box
+	 * @param title the title of the new Class Box
+	 * 
+	 * @return id for this new Class Box
+	 */
+	public int addClassBoxData(int locX, int locY, int width, int height, String title) {
+		ClassBoxData classBoxData = new ClassBoxData(locX, locY,
+													 width, height,
+													 new String[]{ title, "" });
 		index++;
 		this.classBoxes.put(index, classBoxData);
 		
@@ -67,50 +79,95 @@ public class DataManager {
 	 * 
 	 * If no data exists with that id, no changes are made.
 	 * 
-	 * @param id unique id of the Class Box
-	 * @param classBox Class Box to pull data from
+	 * @param id the unique id of the Class Box
+	 * @param locX the updated x location of the Class Box
+	 * @param locY the updated y location of the Class Box
+	 * @param width the updated width of the Class Box
+	 * @param height the updated height of the Class Box
+	 * @param data the updated String content of the Class Box
 	 */
-	public void updateClassBoxData(ClassBox classBox) {
-		int id = classBox.getId();
+	public void updateClassBoxData(int id, int locX, int locY, int width, int height, String[] data) {
 		ClassBoxData classBoxData = this.classBoxes.get(id);
 		if(classBoxData != null) {
-			classBoxData = 
-					new ClassBoxData(classBox.getLocation().x,
-									 classBox.getLocation().y,
-									 classBox.getWidth(),
-									 classBox.getHeight(),
-									 classBox.getArrayRepresentation());
-			this.classBoxes.put(id, classBoxData);
+			classBoxData.setX(locX);
+			classBoxData.setY(locY);
+			classBoxData.setWidth(width);
+			classBoxData.setHeight(height);
+			classBoxData.setBoxes(data);
 		}
 	}
 	
-	public void removeClassBoxData(int id) {
-		this.classBoxes.remove(id);
+	/**
+	 * Update Class Box Data corresponding to a given id.
+	 * 
+	 * This is a performance method. As we drag text boxes across the screen
+	 * we do not want to be creating new text representation arrays for each
+	 * pixel we move.
+	 * 
+	 * @param id the unique id of the Class Box
+	 * @param locX the updated x location of the Class Box
+	 * @param locY the updated y location of the Class Box
+	 * @param width the updated width of the Class Box
+	 * @param height the updated height of the Class Box
+	 */
+	public void updateClassBoxDataWindow(int id, int locX, int locY, int width, int height) {
+		ClassBoxData classBoxData = this.classBoxes.get(id);
+		if(classBoxData != null) {
+			classBoxData.setX(locX);
+			classBoxData.setY(locY);
+			classBoxData.setWidth(width);
+			classBoxData.setHeight(height);
+		}
 	}
 	
-	/* TODO: Add relationship data option!!! */
+	/**
+	 * Remove a Class Box with a given id.
+	 * 
+	 * This will also remove any relationships associated with this class box.
+	 * 
+	 * @param id the id of the Class Box to remove
+	 */
+	public void removeClassBoxData(int id) {
+		ClassBoxData classBox = this.classBoxes.remove(id);
+		
+		for(Entry<Integer, RelationshipData> entry : this.relationships.entrySet()) {
+			if(entry.getValue().getSourceClassBox() == classBox ||
+			   entry.getValue().getDestinationClassBox() == classBox) {
+				this.relationships.remove(entry.getKey());
+			}
+		}
+	}
 	
 	/**
-	 * @param id id of the Class Box Data object
-	 * @return the object if found, otherwise null
+	 * Add a new relationship data object
+	 * @param sourceId the id of the source class box
+	 * @param destinationId the id of the destination class box
+	 * @param type the type of UML association
 	 */
-	public ClassBoxData getClassBoxData(int id) {
-		return this.classBoxes.get(id);
+	public void addRelationshipData(int sourceId, int destinationId, int type) {
+		ClassBoxData source = this.classBoxes.get(sourceId);
+		ClassBoxData destination = this.classBoxes.get(destinationId);
+		
+		if(source != null && destination != null) {
+			RelationshipData relationshipData = new RelationshipData(source, destination, type);
+			index++;
+			this.relationships.put(index, relationshipData);
+		}
+	}
+	
+	/**
+	 * @return the collection of Class Box data
+	 */
+	public TreeMap<Integer, ClassBoxData> getClassBoxData() {
+		return this.classBoxes;
 	}
 	
 	/**
 	 * @param id id of the Relationship Data object
 	 * @return the object if found, otherwise null
 	 */
-	public RelationshipData getRelationshipData(int id) {
-		return this.relationships.get(id);
-	}
-	
-	/**
-	 * @param viewManager reference to the View Manager
-	 */
-	public void setViewManager(ViewManager viewManager) {
-		this.viewRef = viewManager;
+	public TreeMap<Integer, RelationshipData> getRelationshipData() {
+		return this.relationships;
 	}
 	
 	/**
@@ -180,6 +237,19 @@ public class DataManager {
 		}		
 	}
 	
+	/**
+	 * Removes all data stored in the Data Manager
+	 */
+	public void clearData() {
+		this.index = 0;
+		this.classBoxes.clear();
+		this.relationships.clear();
+	}
+	
+	/**
+	 * Helpful tool for debugging. Prints the contents of the Class Boxes
+	 * and Relationships
+	 */
 	public String toString() {
 		return this.classBoxes.toString() + 
 			   "\n" +

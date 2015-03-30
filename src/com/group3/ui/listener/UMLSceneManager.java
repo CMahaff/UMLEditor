@@ -11,14 +11,23 @@ public class UMLSceneManager extends DefaultDesktopManager {
 	
 	private DataManager dataRef;
 	
+	public UMLSceneManager(DataManager dataRef) {
+		super();
+		this.dataRef = dataRef;
+	}
+	
 	public void dragFrame(JComponent boxComp, int newX, int newY) {
 		super.dragFrame(boxComp, newX, newY);
 		ClassBox classBox = (ClassBox)boxComp;
-		this.dataRef.updateClassBoxData(classBox);
+		this.dataRef.updateClassBoxDataWindow(classBox.getId(), classBox.getX(), classBox.getY(), 
+											  classBox.getWidth(), classBox.getHeight());
 	}
 	
-	public void setDataRef(DataManager dataRef) {
-		this.dataRef = dataRef;
+	public void endDraggingFrame(JComponent boxComp) {
+		//TODO: put undo hook here?
 	}
-
+	
+	public void endResizingFrame(JComponent boxComp) {
+		//TODO: put undo hook here?
+	}
 }

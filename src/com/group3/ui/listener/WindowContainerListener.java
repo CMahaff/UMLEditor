@@ -1,5 +1,7 @@
 package com.group3.ui.listener;
 
+import java.awt.KeyEventDispatcher;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
@@ -8,7 +10,7 @@ import com.group3.ui.ViewManager;
 /**
  * @author Connor Mahaffey
  */
-public class WindowContainerListener implements WindowListener {
+public class WindowContainerListener implements WindowListener, KeyEventDispatcher {
 	
 	private ViewManager viewManager;
 	
@@ -42,4 +44,12 @@ public class WindowContainerListener implements WindowListener {
 
 	@Override
 	public void windowOpened(WindowEvent e) {}
+
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent e) {
+		if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			this.viewManager.endRelationshipSelection();
+		}
+		return false;
+	}
 }

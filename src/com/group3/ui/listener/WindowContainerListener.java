@@ -1,6 +1,8 @@
 package com.group3.ui.listener;
 
 import java.awt.KeyEventDispatcher;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -10,7 +12,7 @@ import com.group3.ui.ViewManager;
 /**
  * @author Connor Mahaffey
  */
-public class WindowContainerListener implements WindowListener, KeyEventDispatcher {
+public class WindowContainerListener implements WindowListener, KeyEventDispatcher, ComponentListener {
 	
 	private ViewManager viewManager;
 	
@@ -52,4 +54,18 @@ public class WindowContainerListener implements WindowListener, KeyEventDispatch
 		}
 		return false;
 	}
+
+	@Override
+	public void componentHidden(ComponentEvent e) {}
+
+	@Override
+	public void componentMoved(ComponentEvent e) {}
+
+	@Override
+	public void componentResized(ComponentEvent e) {
+		this.viewManager.resizeToFit();
+	}
+
+	@Override
+	public void componentShown(ComponentEvent e) {}
 }

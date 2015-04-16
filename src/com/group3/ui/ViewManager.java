@@ -1,6 +1,7 @@
 package com.group3.ui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
@@ -15,6 +16,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -69,6 +71,7 @@ public class ViewManager {
 		this.windowFrame.addWindowListener(windowContainerListener);
 		KeyboardFocusManager.getCurrentKeyboardFocusManager()
 			.addKeyEventDispatcher(windowContainerListener);
+		this.windowFrame.addComponentListener(windowContainerListener);
 		
 		/* Menu Bar */
 		this.windowFrame.setJMenuBar(createMenuBar(menuListener));
@@ -78,10 +81,13 @@ public class ViewManager {
 		this.umlScene.setDragMode(JDesktopPane.LIVE_DRAG_MODE);
 		this.umlScene.setDoubleBuffered(true);
 		this.umlScene.setBackground(Color.WHITE);
+		this.umlScene.setPreferredSize(new Dimension(800, 600));
 		UMLSceneManager umlSceneManager = new UMLSceneManager(this.dataRef);
 		this.umlScene.setDesktopManager(umlSceneManager);
-		this.windowFrame.add(this.umlScene);
 		
+		JScrollPane scrollPane = new JScrollPane(this.umlScene);
+		
+		this.windowFrame.add(scrollPane);
 		this.windowFrame.pack();
 		this.windowFrame.setVisible(true);
 		this.windowFrame.setLocationRelativeTo(null); //get window to be centered
@@ -110,6 +116,7 @@ public class ViewManager {
 		file.add(createMenuItem("Save", font, menuListener, "CTRL", "S"));
 		file.add(createMenuItem("Save As", font, menuListener, "CTRL", "A"));
 		file.add(createMenuItem("Exit", font, menuListener, "CTRL", "E"));
+		
 		menuBar.add(file);
 		
 		JMenu add = new JMenu("Add");
@@ -126,6 +133,13 @@ public class ViewManager {
 		add.add(relationship);
 
 		menuBar.add(add);
+		
+		JMenu window = new JMenu("Window");
+		window.setFont(font);
+		window.add(createMenuItem("Increase Window Size", font, menuListener, "CTRL", "I"));
+		window.add(createMenuItem("Decrease Window Size", font, menuListener, "CTRL", "D"));
+		
+		menuBar.add(window);
 		
 		return menuBar;
 	}
@@ -249,7 +263,7 @@ public class ViewManager {
 				String[] classBoxes = this.dataRef.loadModel(this.saveFile);
 				
 				//create new class boxes and add them back to the model
-				//extra entry a the bottom
+				int maxWidth = 800, maxHeight = 600;
 				for(int i = 0; i < classBoxes.length - 1; ++i) {
 					ClassBox classBox = new ClassBox("", this);
 					classBox.loadFromTextData(classBoxes[i]);
@@ -260,8 +274,19 @@ public class ViewManager {
 														  classBox.getArrayRepresentation());
 					classBox.setId(id);
 					
+					if(classBox.getX() + classBox.getWidth() > maxWidth) {
+						maxWidth = classBox.getX() + classBox.getWidth();
+					}
+					if(classBox.getY() + classBox.getHeight() > maxHeight) {
+						maxHeight = classBox.getY() + classBox.getHeight();
+					}
+					
 					this.umlScene.add(classBox);
 				}
+				//set the window size big enough to display all the classes boxes that were added
+				this.umlScene.setPreferredSize(new Dimension(maxWidth, maxHeight));
+				this.umlScene.revalidate();
+				//redraws the new class boxes
 				this.umlScene.repaint();
 			}
 		}
@@ -406,6 +431,34 @@ public class ViewManager {
 			ClassBox c = (ClassBox)entry;
 			c.setSelectable(false);
 			c.setBorderColor(Color.BLACK);
+		}
+	}
+	
+	/**
+	 * Resize the main UML window manually. If the new difference would make the window
+	 * less than 200 pixels in size in either direction, ignore the change
+	 * @param difference the difference, in pixel width/height, to apply to the window
+	 */
+	public void resizeWindow(int difference) {
+		if(this.umlScene.getWidth() + difference < 200 || this.umlScene.getHeight() + difference < 200) {
+			return;
+		}
+		this.umlScene.setPreferredSize(
+				new Dimension(this.umlScene.getWidth() + difference, 
+							  this.umlScene.getHeight() + difference));
+		this.umlScene.revalidate();
+	}
+	
+	/**
+	 * Resizes the UML window when the window size is bigger than it.
+	 * This ensures that class boxes placed when the window is maximized
+	 * can be scrolled to if the window is shrunk again.
+	 */
+	public void resizeToFit() {
+		Dimension windowSize = this.windowFrame.getSize();
+		Dimension umlSize = this.umlScene.getPreferredSize();
+		if(windowSize.getWidth() > umlSize.getWidth() || windowSize.getHeight() > umlSize.getHeight()) {
+			this.umlScene.setPreferredSize(new Dimension(windowSize.width - 40, windowSize.height - 90));
 		}
 	}
 	

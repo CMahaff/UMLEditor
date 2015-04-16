@@ -49,6 +49,10 @@ public class MenuListener implements ActionListener {
 			this.viewManager.startRelationshipSelection(RelationshipData.COMPOSITION);
 		} else if(e.getActionCommand().equals("Generalization")) {
 			this.viewManager.startRelationshipSelection(RelationshipData.GENERALIZATION);
+		} else if(e.getActionCommand().equals("Increase Window Size")) {
+			this.viewManager.resizeWindow(100);
+		} else if(e.getActionCommand().equals("Decrease Window Size")) {
+			this.viewManager.resizeWindow(-100);
 		} else {
 			System.out.println(e.getActionCommand());
 			JOptionPane.showMessageDialog(null, "This component is still in development.", 

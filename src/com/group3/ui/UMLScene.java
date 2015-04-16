@@ -1,7 +1,6 @@
 package com.group3.ui;
 
 import java.awt.BasicStroke;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
@@ -231,9 +230,5 @@ public class UMLScene extends JDesktopPane {
 				return UMLScene.ROT_270;
 			}
 		}
-	}
-	
-	public Dimension getPreferredSize() {
-		return new Dimension(800, 600);
 	}
 }

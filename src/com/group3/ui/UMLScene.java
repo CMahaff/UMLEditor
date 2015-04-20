@@ -95,10 +95,9 @@ public class UMLScene extends JDesktopPane {
 					drawConnection(g2d, p1, p2, rotS, rotD);
 					break;
 				case RelationshipData.DEPENDENCY:
-					//TODO: Add dashed line instead of solid line
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.ARROW], entry.getDestinationClassBox(), rotD, false);
-					drawConnection(g2d, p1, p2, rotS, rotD);
+					drawDottedConnection(g2d, p1, p2, rotS, rotD);
 					break;
 				case RelationshipData.AGGREGATION:
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
@@ -178,7 +177,8 @@ public class UMLScene extends JDesktopPane {
 	}
 	
 	/**
-	 * Draws the connecting line between 2 Class Boxes, adjusting their location based on the starting rotation.
+	 * Draws the dotted connecting line between 2 Class Boxes, 
+	 * adjusting their location based on the starting rotation.
 	 * 
 	 * This class should be used in conjunction with drawPolygon.
 	 * 
@@ -212,6 +212,64 @@ public class UMLScene extends JDesktopPane {
 		g.drawLine(startCoord[0], startCoord[1], endCoord[0], endCoord[1]);
 	}
 	
+	/**
+	 * Draws the connecting line between 2 Class Boxes, adjusting their location based on the starting rotation.
+	 * 
+	 * This class should be used in conjunction with drawPolygon.
+	 * 
+	 * @param g the Graphics2D object to use
+	 * @param startCoord the starting coordinates of the drawn polygon
+	 * @param endCoord the ending coordinates of the drawn polygon
+	 * @param rotSource the rotation of the source polygon
+	 * @param rotDest the rotation of the destination polygon
+	 */
+	private void drawDottedConnection(Graphics2D g, int[] startCoord, int[] endCoord, double rotSource, double rotDest) {
+		if(rotSource == UMLScene.ROT_90) {
+			startCoord[0] -= HEIGHT / 2;
+		} else if(rotSource == UMLScene.ROT_180) {
+			startCoord[1] -= HEIGHT / 2;
+		} else if(rotSource == UMLScene.ROT_270) {
+			startCoord[0] += HEIGHT / 2;
+		} else {
+			startCoord[1] += HEIGHT / 2;
+		}
+		
+		if(rotDest == UMLScene.ROT_90) {
+			endCoord[0] -= HEIGHT / 2;
+		} else if(rotDest == UMLScene.ROT_180) {
+			endCoord[1] -= HEIGHT / 2;
+		} else if(rotDest == UMLScene.ROT_270) {
+			endCoord[0] += HEIGHT / 2;
+		} else {
+			endCoord[1] += HEIGHT / 2;
+		}
+		
+		double distance = getDistance(startCoord, endCoord);
+		double numOfSegments = Math.ceil(distance / 10);
+		double xChangePerIt = (endCoord[0] - startCoord[0]) / numOfSegments;
+		double yChangePerIt = (endCoord[1] - startCoord[1]) / numOfSegments;
+		
+		double xLoc = startCoord[0];
+		double yLoc = startCoord[1];
+		for(int i = 0; i < numOfSegments; ++i) {
+			double newX = xLoc + xChangePerIt;
+			double newY = yLoc + yChangePerIt;
+			if(i % 2 == 0) {
+				g.drawLine((int)xLoc, (int)yLoc, (int)newX, (int)newY);
+			}
+			xLoc = newX;
+			yLoc = newY;
+		}
+	}
+	
+	/**
+	 * Gets the appropriate rotation for a given connection based on where
+	 * two class boxes are located.
+	 * 
+	 * @param source source class box
+	 * @param dest destination class box
+	 * @return a rotation constant, which holds the rotation in radians
+	 */
 	private double getRotation(ClassBoxData source, ClassBoxData dest) {
 		int diffX = source.getX() - dest.getX();
 		int diffY = source.getY() - dest.getY();
@@ -230,5 +288,21 @@ public class UMLScene extends JDesktopPane {
 				return UMLScene.ROT_270;
 			}
 		}
+	}
+	
+	/**
+	 * Applies the distance formula to a set of coordinates
+	 * 
+	 * @param startCoord the starting coordinates, (x1, y1)
+	 * @param endCoord the ending coordinates, (x2, y2)
+	 * @return the distance (pixels) between these locations
+	 */
+	private double getDistance(int[] startCoord, int[] endCoord) {
+		double x1 = startCoord[0];
+		double x2 = endCoord[0];
+		double y1 = startCoord[1];
+		double y2 = endCoord[1];
+		
+		return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2- y1), 2));
 	}
 }

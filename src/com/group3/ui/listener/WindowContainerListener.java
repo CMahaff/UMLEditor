@@ -47,6 +47,9 @@ public class WindowContainerListener implements WindowListener, KeyEventDispatch
 	@Override
 	public void windowOpened(WindowEvent e) {}
 
+	/**
+	 * End the relationship selection event if ESC is pressed
+	 */
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent e) {
 		if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
@@ -61,6 +64,10 @@ public class WindowContainerListener implements WindowListener, KeyEventDispatch
 	@Override
 	public void componentMoved(ComponentEvent e) {}
 
+	/**
+	 * If the main window is resized, handle expanding the inner
+	 * drawable frame, so that it will become scrollable
+	 */
 	@Override
 	public void componentResized(ComponentEvent e) {
 		this.viewManager.resizeToFit();

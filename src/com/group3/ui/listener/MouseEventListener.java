@@ -8,23 +8,29 @@ import javax.swing.JPopupMenu;
 
 import com.group3.ui.ClassBox;
 
+/**
+ * 
+ * @author Dave Mengel
+ *
+ */
 public class MouseEventListener extends MouseAdapter {
 	
 	JPopupMenu popup;
 	ClassBox box;
 	JFrame frame;
-/**
- * A MouseEventListener that initiates the right click menu
- * @param popupMenu  the menu being generated
- */
+	
+	/**
+	 * A MouseEventListener that initiates the right click menu
+	 * @param popupMenu  the menu being generated
+	 */
     public MouseEventListener(JPopupMenu popupMenu) {
         popup = popupMenu;
     }
-/**
- * @param e The MouseEvent that happens when user right clicks. 
- * Systems signal popup menus differently, therefore must be called in both
- * pressed and released.
- */
+	/**
+	 * @param e The MouseEvent that happens when user right clicks. 
+	 * Systems signal popup menus differently, therefore must be called in both
+	 * pressed and released.
+	 */
     public void mousePressed(MouseEvent e) {
         showPopup(e);
     }
@@ -32,10 +38,10 @@ public class MouseEventListener extends MouseAdapter {
     public void mouseReleased(MouseEvent e) {
         showPopup(e);
     }
-/**
- * 
- * @param e MouseEvent that initiates the popup menu
- */
+	/**
+	 * 
+	 * @param e MouseEvent that initiates the popup menu
+	 */
     private void showPopup(MouseEvent e) {
         if (e.isPopupTrigger()) {
             popup.show(e.getComponent(),

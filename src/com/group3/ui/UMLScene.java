@@ -30,6 +30,11 @@ public class UMLScene extends JDesktopPane {
 	private DataManager dataManager;
 	private Polygon[] polygons = new Polygon[4];
 	
+	/**
+	 * Draws the relationship connections to the scene
+	 * 
+	 * @param dataManager a reference to the Data Manager
+	 */
 	public UMLScene(DataManager dataManager) {
 		this.dataManager = dataManager;
 		

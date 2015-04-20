@@ -9,6 +9,11 @@ public class RelationshipSelectionManager {
 	private ClassBox[] selectedClassBoxes;
 	private int index, relationshipType;
 	
+	/**
+	 * Helps keep track of which class boxes are being linked in a relationship
+	 * @param viewRef a reference to the View Manager
+	 * @param relationshipType the type of relationship this selection will create
+	 */
 	public RelationshipSelectionManager(ViewManager viewRef, int relationshipType) {
 		this.viewRef = viewRef;
 		this.selectedClassBoxes = new ClassBox[2];

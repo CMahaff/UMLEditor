@@ -23,6 +23,9 @@ public class MenuListener implements ActionListener {
 		this.viewManager = viewManager;
 	}
 
+	/**
+	 * Handle all window menu options for the main frame.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {		
 		if(e.getActionCommand().equals("New")) {
@@ -57,7 +60,6 @@ public class MenuListener implements ActionListener {
 			System.out.println(e.getActionCommand());
 			JOptionPane.showMessageDialog(null, "This component is still in development.", 
 											    "Information", JOptionPane.INFORMATION_MESSAGE);
-			//TODO: Handle additional actions
 		}
 		
 	}

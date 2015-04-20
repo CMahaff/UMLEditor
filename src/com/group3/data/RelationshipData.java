@@ -4,9 +4,7 @@ package com.group3.data;
  * @author Connor Mahaffey
  */
 public class RelationshipData {
-	
-	//test
-	
+		
 	public static final int BASIC = 0,
 							DEPENDENCY = 1,
 							AGGREGATION = 2,

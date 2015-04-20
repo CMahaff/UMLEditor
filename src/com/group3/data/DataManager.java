@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map.Entry;
+import java.util.ArrayList;
 import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
@@ -130,11 +131,19 @@ public class DataManager {
 	public void removeClassBoxData(int id) {
 		ClassBoxData classBox = this.classBoxes.remove(id);
 		
+		ArrayList<Integer> keysToRemove = new ArrayList<Integer>();
+		
 		for(Entry<Integer, RelationshipData> entry : this.relationships.entrySet()) {
 			if(entry.getValue().getSourceClassBox() == classBox ||
 			   entry.getValue().getDestinationClassBox() == classBox) {
-				this.relationships.remove(entry.getKey());
+				//cannot remove the key directly here, causes an error 
+				//since the entry set is modified while being traversed
+				keysToRemove.add(entry.getKey());
 			}
+		}
+		
+		for(int key : keysToRemove){
+			this.relationships.remove(key);
 		}
 	}
 	

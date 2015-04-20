@@ -27,8 +27,6 @@ import com.group3.ui.listener.MenuListener;
 import com.group3.ui.listener.UMLSceneManager;
 import com.group3.ui.listener.WindowContainerListener;
 
-//import com.sun.glass.events.KeyEvent; not sure what this is for, gives error when uncommented
-
 /**
  * @author Connor Mahaffey
  * 		   David Mengel
@@ -376,6 +374,14 @@ public class ViewManager {
 		this.umlScene.repaint();
 	}
 	
+	/**
+	 * Begins a relationship selection event.
+	 * 
+	 * There must be at least two class boxes, on the first run, this method
+	 * will show a dialog explaining the relationship linking process.
+	 * 
+	 * @param relationshipType the type of relationship being created
+	 */
 	public void startRelationshipSelection(int relationshipType) {
 		
 		if(this.umlScene.getComponents().length < 2) {

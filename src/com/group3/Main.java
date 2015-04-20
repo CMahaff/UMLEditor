@@ -13,7 +13,7 @@ import com.group3.ui.ViewManager;
  */
 public class Main {
 	
-	public static final String version = "0.2 Alpha";
+	public static final String version = "0.3 Alpha";
 
 	/**
 	 * 

@@ -463,7 +463,7 @@ public class ViewManager {
 	public void resizeToFit() {
 		Dimension windowSize = this.windowFrame.getSize();
 		Dimension umlSize = this.umlScene.getPreferredSize();
-		if(windowSize.getWidth() > umlSize.getWidth() || windowSize.getHeight() > umlSize.getHeight()) {
+		if(windowSize.getWidth() > umlSize.getWidth() + 40 || windowSize.getHeight() > umlSize.getHeight() + 90) {
 			this.umlScene.setPreferredSize(new Dimension(windowSize.width - 40, windowSize.height - 90));
 		}
 	}

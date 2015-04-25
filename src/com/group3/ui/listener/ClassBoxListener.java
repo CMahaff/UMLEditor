@@ -118,7 +118,10 @@ public class ClassBoxListener implements ActionListener, ComponentListener, Focu
 	public void internalFrameActivated(InternalFrameEvent e) {
 		if(this.classBox.isSelectable()) {
 			this.classBox.setBorderColor(Color.BLUE);
+			
+
 			this.viewManager.getRelationshipSelectionManager().addSelection(classBox);
+		
 		}
 	}
 

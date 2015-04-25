@@ -3,8 +3,12 @@ package com.group3.ui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.KeyboardFocusManager;
+import java.awt.MouseInfo;
+import java.awt.Point;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseListener;
 import java.beans.PropertyVetoException;
 import java.io.File;
 
@@ -16,6 +20,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
@@ -24,6 +29,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.group3.Main;
 import com.group3.data.DataManager;
 import com.group3.ui.listener.MenuListener;
+import com.group3.ui.listener.MouseEventListener;
+import com.group3.ui.listener.RelationshipMouseEventListener;
 import com.group3.ui.listener.UMLSceneManager;
 import com.group3.ui.listener.WindowContainerListener;
 
@@ -34,7 +41,7 @@ import com.group3.ui.listener.WindowContainerListener;
 public class ViewManager {
 	
 	private DataManager dataRef;
-	private boolean exit, showRelationshipHint;
+	private boolean exit, showRelationshipHint, showRelationshipRemovalHint, removing;
 	
 	private JFrame windowFrame;
 	private UMLScene umlScene;
@@ -44,6 +51,8 @@ public class ViewManager {
 	private File saveFile = null;
 	
 	private RelationshipSelectionManager relSelManager;
+	
+	private MouseListener popupListener;
 	
 	
 	/**
@@ -60,6 +69,7 @@ public class ViewManager {
 		WindowContainerListener windowContainerListener 
 			= new WindowContainerListener(this);
 		MenuListener menuListener = new MenuListener(this);
+
 		
 		/* Window Frame */
 		this.windowFrame = new JFrame();
@@ -73,7 +83,7 @@ public class ViewManager {
 		
 		/* Menu Bar */
 		this.windowFrame.setJMenuBar(createMenuBar(menuListener));
-		
+
 		/* UML Diagram Background and Windows */
 		this.umlScene = new UMLScene(this.dataRef);
 		this.umlScene.setDragMode(JDesktopPane.LIVE_DRAG_MODE);
@@ -84,14 +94,39 @@ public class ViewManager {
 		this.umlScene.setDesktopManager(umlSceneManager);
 		
 		JScrollPane scrollPane = new JScrollPane(this.umlScene);
+
+		
+		createRelationshipPopupMenu(menuListener, this.umlScene);
 		
 		this.windowFrame.add(scrollPane);
 		this.windowFrame.pack();
 		this.windowFrame.setVisible(true);
 		this.windowFrame.setLocationRelativeTo(null); //get window to be centered
 		
+	
 		this.showRelationshipHint = true;
+		this.showRelationshipRemovalHint = true;
+		
+		
 	}
+	
+
+	private void createRelationshipPopupMenu(MenuListener menuListener, UMLScene window) {
+		
+		JPopupMenu popup = new JPopupMenu();
+		JMenuItem menuItem;
+		menuItem = new JMenuItem("Delete Relationship");
+		menuItem.addActionListener(menuListener);
+		popup.add(menuItem);
+		menuItem = new JMenuItem("Add Cardinality");
+		menuItem.addActionListener(menuListener);
+		popup.add(menuItem);
+
+		this.popupListener = new RelationshipMouseEventListener(popup, window);
+		window.addMouseListener(this.popupListener);
+		
+
+}
 	
 	/**
 	 * TODO: Add more types, fill in actions, possibly add submenus for Connectors
@@ -117,10 +152,10 @@ public class ViewManager {
 		
 		menuBar.add(file);
 		
-		JMenu add = new JMenu("Add");
-		add.setFont(font);
+		JMenu edit = new JMenu("Edit");
+		edit.setFont(font);
 
-		add.add(createMenuItem("Class Box", font, menuListener, "ALT", "C"));
+		edit.add(createMenuItem("Class Box", font, menuListener, "ALT", "C"));
 		JMenuItem relationship = new JMenu("Relationship");
 		relationship.setFont(font);
 		relationship.add(createMenuItem("Association", font, menuListener, "ALT", "B"));
@@ -128,9 +163,9 @@ public class ViewManager {
 		relationship.add(createMenuItem("Aggregation", font, menuListener, "ALT", "A"));
 		relationship.add(createMenuItem("Composition", font, menuListener, "ALT", "I"));
 		relationship.add(createMenuItem("Generalization", font, menuListener, "ALT", "G"));
-		add.add(relationship);
-
-		menuBar.add(add);
+		edit.add(relationship);
+		edit.add(createMenuItem("Remove Relationship", font, menuListener, "CTRL", "R"));
+		menuBar.add(edit);
 		
 		JMenu window = new JMenu("Window");
 		window.setFont(font);
@@ -209,6 +244,7 @@ public class ViewManager {
 		this.umlScene.remove(classBox);
 		this.umlScene.repaint();
 	}
+	
 	
 	/**
 	 * TODO: Signal DataManager to save. Dispose of Views.
@@ -383,7 +419,7 @@ public class ViewManager {
 	 * @param relationshipType the type of relationship being created
 	 */
 	public void startRelationshipSelection(int relationshipType) {
-		
+		removing = false;
 		if(this.umlScene.getComponents().length < 2) {
 			JOptionPane.showMessageDialog(this.windowFrame,
 										  "You have at least 2 Class Boxes on screen to " +
@@ -419,6 +455,57 @@ public class ViewManager {
 			c.setSelectable(true);
 		}
 	}
+	
+	/**
+	 * Begins a relationship removal selection event.
+	 * 
+	 * There must be at least two class boxes, and a relationship created. On the 
+	 * first run, it will show a dialog explaining the relationship removal process.
+	 * 
+	 */
+	
+public void startRelationshipRemovalSelection() {
+		removing = true;
+		if(this.umlScene.getComponents().length < 2 | this.dataRef.getRelationshipData().isEmpty()) {
+			JOptionPane.showMessageDialog(this.windowFrame,
+										  "You must have at least 2 Class Boxes and a relationship " +
+										  "on screen to remove a relationship", "Error",
+										  JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+				
+
+		
+		if(this.showRelationshipRemovalHint) {
+			JOptionPane.showMessageDialog(this.windowFrame, 
+					  					  "Select two Class Boxes to remove the relationship between them.\n\n" +
+					  					  "Hit ESC to cancel the relationship removal.",
+					  					  "Hint", JOptionPane.INFORMATION_MESSAGE);
+			this.showRelationshipRemovalHint = false;
+		}
+		
+		this.umlScene.setBackground(Color.RED.darker().darker());
+		
+		ClassBox classBox = (ClassBox)this.umlScene.getSelectedFrame();
+		if(classBox != null) {
+			try {
+				classBox.setSelected(false);
+			} catch (PropertyVetoException e) {
+				System.err.println("Class Box could not be unselected.");
+				System.exit(1);
+			}
+		}
+		
+		this.relSelManager = new RelationshipSelectionManager(this);
+
+		
+		for(JInternalFrame entry : this.umlScene.getAllFrames()) {
+			ClassBox c = (ClassBox)entry;
+			c.setSelectable(true);
+		}
+		
+	}
+
 	
 	/**
 	 * This methods ends a selection event and changes the view back to normal.
@@ -478,5 +565,24 @@ public class ViewManager {
 		return this.relSelManager;
 	}
 	
+	/**
+	 * Get a reference to the removing variable,
+	 * which helps determine whether or not we are currently in
+	 * the adding relationship or removing relationship operation. 
+	 * 
+	 */
+	public boolean getRemoving() {
+		return this.removing;
+	}
+	
+	
+/**
+ * Gets a reference to the UMLScene
+ * 
+ * @return is the umlScene that is being referenced
+ */
+	public UMLScene getUMLScene() {
+		return this.umlScene;
+	}
 }
 

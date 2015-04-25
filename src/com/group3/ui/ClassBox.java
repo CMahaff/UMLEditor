@@ -51,7 +51,7 @@ public class ClassBox extends JInternalFrame {
 	public ClassBox(String title, ViewManager viewRef) {
 		super("", true); //JInternalFrame title, resizable
 
-		this.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, Color.BLACK));
+		this.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.BLACK));
 		this.setBackground(Color.GRAY.brighter());
 		this.setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		this.textStack = new Stack<JTextArea>();
@@ -64,7 +64,7 @@ public class ClassBox extends JInternalFrame {
         this.addComponentListener(this.classBoxListener);
 
 		createTitleBox(title);
-		createPopupMenu(viewRef);
+		createPopupMenu();
 		createTextBox();
 		addDrag();
 		
@@ -83,7 +83,7 @@ public class ClassBox extends JInternalFrame {
 	 * Set up the right click context manager
 	 * @param viewRef View Manager reference the class box uses to remove itself when deleted
 	 */
-	private void createPopupMenu(ViewManager viewRef) {
+	private void createPopupMenu() {
         JMenuItem menuItem;
         //Create the popup menu.
         JPopupMenu popup = new JPopupMenu();
@@ -99,6 +99,7 @@ public class ClassBox extends JInternalFrame {
  
         this.popupListener = new MouseEventListener(popup);
         this.addMouseListener(this.popupListener);
+        
 	}
 	
 	/**
@@ -116,7 +117,7 @@ public class ClassBox extends JInternalFrame {
 		this.titleTextArea.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		this.titlePanel.add(this.titleTextArea);
 		this.titlePanel.setBackground(Color.GRAY.brighter());
-		this.titlePanel.setBorder(BorderFactory.createMatteBorder(0, 0, 4, 0, Color.BLACK));
+		this.titlePanel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, Color.BLACK));
 		
 		this.titlePanel.addFocusListener(this.classBoxListener);
 		this.titlePanel.setCursor(createMoveCursor());
@@ -294,6 +295,6 @@ public class ClassBox extends JInternalFrame {
 	 * @param color color to set the border to
 	 */
 	public void setBorderColor(Color color) {
-		this.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, color));
+		this.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, color));
 	}
 }

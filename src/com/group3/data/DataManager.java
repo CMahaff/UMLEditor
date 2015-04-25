@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 /**
  * @author Connor Mahaffey
  *         Brady Landis
+ *         David Mengel
  */
 public class DataManager {
 	
@@ -164,6 +165,69 @@ public class DataManager {
 		}
 	}
 	
+	/**
+	 * Removes all relationships between two 
+	 * @param sourceId the id of the source class box
+	 * @param destinationId the id of the destination class box
+	 */
+	
+	public void removeRelationshipData(int sourceId, int destinationId) {
+		ClassBoxData source = this.classBoxes.get(sourceId);
+		ClassBoxData destination = this.classBoxes.get(destinationId);
+		System.out.println(source);
+		System.out.println(destination);
+
+		
+		ArrayList<Integer> keysToRemove = new ArrayList<Integer>();
+		
+		if(source != null && destination != null) {
+			for(Entry<Integer, RelationshipData> entry : this.relationships.entrySet()) {
+				if((entry.getValue().getSourceClassBox() == source ||
+					entry.getValue().getSourceClassBox() == destination ) && 
+				   (entry.getValue().getDestinationClassBox() == source ||
+					entry.getValue().getDestinationClassBox() == destination )) {
+					
+					keysToRemove.add(entry.getKey());
+
+				}
+				
+	
+				}
+			for(int key : keysToRemove){
+				this.relationships.remove(key);
+			
+			}
+		}
+	}
+	/**
+	 * removes all relationships between two classboxes through the classboxdata
+	 * @param source classboxdata of the source box
+	 * @param destination classboxdata of the destination box
+	 */
+	public void deleteRelationshipData(ClassBoxData source, ClassBoxData destination) {
+
+		
+		ArrayList<Integer> keysToRemove = new ArrayList<Integer>();
+		
+		if(source != null && destination != null) {
+			for(Entry<Integer, RelationshipData> entry : this.relationships.entrySet()) {
+				if((entry.getValue().getSourceClassBox() == source ||
+					entry.getValue().getSourceClassBox() == destination ) && 
+				   (entry.getValue().getDestinationClassBox() == source ||
+					entry.getValue().getDestinationClassBox() == destination )) {
+					
+					keysToRemove.add(entry.getKey());
+
+				}
+				
+	
+				}
+			for(int key : keysToRemove){
+				this.relationships.remove(key);
+			
+			}
+		}
+	}
 	/**
 	 * @return the collection of Class Box data
 	 */

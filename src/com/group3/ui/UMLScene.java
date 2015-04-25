@@ -3,6 +3,7 @@ package com.group3.ui;
 import java.awt.BasicStroke;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
@@ -29,6 +30,11 @@ public class UMLScene extends JDesktopPane {
 	
 	private DataManager dataManager;
 	private Polygon[] polygons = new Polygon[4];
+	private boolean remove;
+	private boolean removeTrue;
+	private RelationshipData relationshipData;
+
+
 	
 	/**
 	 * Draws the relationship connections to the scene
@@ -87,7 +93,7 @@ public class UMLScene extends JDesktopPane {
 		g2d.setBackground(this.getBackground());
 		g2d.clearRect(0, 0, this.getWidth(), this.getHeight());
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g2d.setStroke(new BasicStroke(2));
+		g2d.setStroke(new BasicStroke(1));
 		
 		for(RelationshipData entry : this.dataManager.getRelationshipData().values()) {
 			double rotS = getRotation(entry.getSourceClassBox(), entry.getDestinationClassBox());
@@ -98,32 +104,79 @@ public class UMLScene extends JDesktopPane {
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getDestinationClassBox(), rotD, false);
 					drawConnection(g2d, p1, p2, rotS, rotD);
+					removeMenu(p1, p2, rotS, rotD, entry);
+
 					break;
 				case RelationshipData.DEPENDENCY:
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.ARROW], entry.getDestinationClassBox(), rotD, false);
 					drawDottedConnection(g2d, p1, p2, rotS, rotD);
+					removeMenu(p1, p2, rotS, rotD, entry);
+
 					break;
 				case RelationshipData.AGGREGATION:
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.DIAMOND], entry.getDestinationClassBox(), rotD, false);
 					drawConnection(g2d, p1, p2, rotS, rotD);
+					removeMenu(p1, p2, rotS, rotD, entry);
+
 					break;
 				case RelationshipData.COMPOSITION:
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.DIAMOND], entry.getDestinationClassBox(), rotD, true);
 					drawConnection(g2d, p1, p2, rotS, rotD);
+					removeMenu(p1, p2, rotS, rotD, entry);
+					
 					break;
 				case RelationshipData.GENERALIZATION:
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.TRIANGLE], entry.getDestinationClassBox(), rotD, false);
 					drawConnection(g2d, p1, p2, rotS, rotD);
+					removeMenu(p1, p2, rotS, rotD, entry);
+
 					break;
 				default:
 					break;
 			}
 		}
+		
 	}
+	/**
+	 * returns the classBoxData for relationship removal
+	 * @return returns an array of 2 classbox data
+	 */
+	public ClassBoxData[] getClassBoxData() {
+			if(remove == true) {
+				ClassBoxData[] boxes = new ClassBoxData[2];
+		
+				boxes[0] = relationshipData.getSourceClassBox();
+				boxes[1] = relationshipData.getDestinationClassBox();
+				return boxes;
+			}	
+			
+			return null;
+			
+	}
+/**
+ * sets the private variable remove to the boolean value triggerPopup returns 
+ * @param startCoord the starting coordinates of the drawn polygon
+ * @param endCoord the ending coordinates of the drawn polygon
+ * @param rotSource the rotation of the source polygon
+ * @param rotDest the rotation of the destination polygon
+ * @param entry the relationship data containing the data of the two classboxes
+ */
+	private void removeMenu(int[] startCoord, int[] endCoord, 
+			double rotSource, double rotDest, RelationshipData entry) 
+	{	
+		
+		if (removeTrue == true) {
+			
+			remove = triggerPopup(startCoord, endCoord,rotSource, rotDest);	
+			relationshipData = entry;
+
+		}
+	}
+	
 	
 	/**
 	 * Draws a polygon next to a ClassBox with a given rotation
@@ -213,9 +266,11 @@ public class UMLScene extends JDesktopPane {
 		} else {
 			endCoord[1] += HEIGHT / 2;
 		}
-		
 		g.drawLine(startCoord[0], startCoord[1], endCoord[0], endCoord[1]);
+
 	}
+	
+
 	
 	/**
 	 * Draws the connecting line between 2 Class Boxes, adjusting their location based on the starting rotation.
@@ -248,6 +303,7 @@ public class UMLScene extends JDesktopPane {
 		} else {
 			endCoord[1] += HEIGHT / 2;
 		}
+	
 		
 		double distance = getDistance(startCoord, endCoord);
 		double numOfSegments = Math.ceil(distance / 10);
@@ -310,4 +366,75 @@ public class UMLScene extends JDesktopPane {
 		
 		return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2- y1), 2));
 	}
+	
+	/**
+	 * Triggers remove to the value true only if the right click is occurring within 10 pixels
+	 * of a line  
+	 * @param startCoord the starting coordinates of the drawn polygon
+	 * @param endCoord the ending coordinates of the drawn polygon
+	 * @param rotSource the rotation of the source polygon
+	 * @param rotDest the rotation of the destination polygon
+	 * @return true if mouse is within 10 pixels of a line
+	 */
+	private boolean triggerPopup (int[] startCoord, int[] endCoord, double rotSource, double rotDest) {
+		if(rotSource == UMLScene.ROT_90) {
+			startCoord[0] -= HEIGHT / 2;
+		} else if(rotSource == UMLScene.ROT_180) {
+			startCoord[1] -= HEIGHT / 2;
+		} else if(rotSource == UMLScene.ROT_270) {
+			startCoord[0] += HEIGHT / 2;
+		} else {
+			startCoord[1] += HEIGHT / 2;
+		}
+		
+		if(rotDest == UMLScene.ROT_90) {
+			endCoord[0] -= HEIGHT / 2;
+		} else if(rotDest == UMLScene.ROT_180) {
+			endCoord[1] -= HEIGHT / 2;
+		} else if(rotDest == UMLScene.ROT_270) {
+			endCoord[0] += HEIGHT / 2;
+		} else {
+			endCoord[1] += HEIGHT / 2;
+		}
+	
+		
+		double distance = getDistance(startCoord, endCoord);
+		double numOfSegments = Math.ceil(distance / 10);
+		double xChangePerIt = (endCoord[0] - startCoord[0]) / numOfSegments;
+		double yChangePerIt = (endCoord[1] - startCoord[1]) / numOfSegments;
+		
+		double xLoc = startCoord[0];
+		double yLoc = startCoord[1];
+		for(int i = 0; i < numOfSegments; ++i) {
+			double newX = xLoc + xChangePerIt;
+			double newY = yLoc + yChangePerIt;
+			if(i % 2 == 0) { 
+				int[] location = {(int) newX, (int) newY};
+				int[] mouseLocation = {this.getMousePosition().x, this.getMousePosition().y};
+				int mouseDistance = (int) getDistance(location,mouseLocation);
+				if(mouseDistance <= 10) {
+					return remove = true;
+				}
+				
+			}
+			xLoc = newX;
+			yLoc = newY;
+		}
+		return remove = false;
+	}
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean removePopup(){
+		return remove;
+	}
+	/**
+	 * is true only when right click has been initialized
+	 * @param removing is true only when right click has been initialized
+	 */
+	public void removeTrue(boolean removing) {
+		removeTrue = removing;
+	}
+
 }

@@ -5,7 +5,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JOptionPane;
 
-import com.group3.data.ClassBoxData;
 import com.group3.data.RelationshipData;
 import com.group3.ui.ViewManager;
 
@@ -53,19 +52,15 @@ public class MenuListener implements ActionListener {
 			this.viewManager.startRelationshipSelection(RelationshipData.COMPOSITION);
 		} else if(e.getActionCommand().equals("Generalization")) {
 			this.viewManager.startRelationshipSelection(RelationshipData.GENERALIZATION);
-		} else if(e.getActionCommand().equals("Remove Relationship")) {
-			this.viewManager.startRelationshipRemovalSelection();
 		} else if(e.getActionCommand().equals("Delete Relationship")) {
-			ClassBoxData[] boxes = this.viewManager.getUMLScene().getClassBoxData();
-			this.viewManager.getDataManager().deleteRelationshipData(boxes[0], boxes[1]);
-			this.viewManager.repaintUML();
-			this.viewManager.getUMLScene().removeTrue(false);
+			this.viewManager.getUMLScene().removeEditableRelationship();
+			this.viewManager.getUMLScene().repaint();
 		} else if(e.getActionCommand().equals("Increase Window Size")) {
 			this.viewManager.resizeWindow(100);
 		} else if(e.getActionCommand().equals("Decrease Window Size")) {
 			this.viewManager.resizeWindow(-100);
 		} else {
-			System.out.println(e.getActionCommand());
+			System.out.println("\"" + e.getActionCommand() + "\" is not implemented.");
 			JOptionPane.showMessageDialog(null, "This component is still in development.", 
 											    "Information", JOptionPane.INFORMATION_MESSAGE);
 		}

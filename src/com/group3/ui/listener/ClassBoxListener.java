@@ -69,7 +69,7 @@ public class ClassBoxListener implements ActionListener, ComponentListener, Focu
 		dm.updateClassBoxDataWindow(this.classBox.getId(), 
 									this.classBox.getX(), this.classBox.getY(), 
 									this.classBox.getWidth(), this.classBox.getHeight());
-		this.viewManager.repaintUML();
+		this.viewManager.getUMLScene().repaint();
 	}
 
 	/**
@@ -86,7 +86,7 @@ public class ClassBoxListener implements ActionListener, ComponentListener, Focu
 		dm.updateClassBoxDataWindow(this.classBox.getId(), 
 									this.classBox.getX(), this.classBox.getY(), 
 									this.classBox.getWidth(), this.classBox.getHeight());
-		this.viewManager.repaintUML();
+		this.viewManager.getUMLScene().repaint();
 	}
 
 	@Override

@@ -174,9 +174,6 @@ public class DataManager {
 	public void removeRelationshipData(int sourceId, int destinationId) {
 		ClassBoxData source = this.classBoxes.get(sourceId);
 		ClassBoxData destination = this.classBoxes.get(destinationId);
-		System.out.println(source);
-		System.out.println(destination);
-
 		
 		ArrayList<Integer> keysToRemove = new ArrayList<Integer>();
 		
@@ -199,12 +196,13 @@ public class DataManager {
 			}
 		}
 	}
+	
 	/**
 	 * removes all relationships between two classboxes through the classboxdata
 	 * @param source classboxdata of the source box
 	 * @param destination classboxdata of the destination box
 	 */
-	public void deleteRelationshipData(ClassBoxData source, ClassBoxData destination) {
+	public void removeRelationshipData(ClassBoxData source, ClassBoxData destination) {
 
 		
 		ArrayList<Integer> keysToRemove = new ArrayList<Integer>();

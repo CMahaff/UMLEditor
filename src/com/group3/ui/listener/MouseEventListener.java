@@ -3,10 +3,7 @@ package com.group3.ui.listener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JFrame;
 import javax.swing.JPopupMenu;
-
-import com.group3.ui.ClassBox;
 
 /**
  * 

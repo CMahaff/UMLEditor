@@ -31,7 +31,7 @@ public class RelationshipMouseEventListener extends MouseAdapter {
     }
 
     public void mouseReleased(MouseEvent e) {
-        showPopup(e);
+        //showPopup(e);
     }
 	/**
 	 * 
@@ -39,16 +39,10 @@ public class RelationshipMouseEventListener extends MouseAdapter {
 	 */
     private void showPopup(MouseEvent e) {
     	
-    	window.removeTrue(true);
-    	window.repaint();
-    	if(window.removePopup() == true) {
-    		if (e.isPopupTrigger()) {
-    			popup.show(e.getComponent(),
+    	if(window.selectEditableRelationship(e.getX(), e.getY())) {
+    		popup.show(e.getComponent(),
     				e.getX(), e.getY());
-    		}
-    		
     	}
-    	window.repaint();
     	
     }
   

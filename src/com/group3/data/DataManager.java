@@ -62,6 +62,7 @@ public class DataManager {
 		index++;
 		this.classBoxes.put(index, classBoxData);
 		
+		classBoxData.setId(index);
 		return index;
 	}
 	
@@ -83,6 +84,7 @@ public class DataManager {
 		index++;
 		this.classBoxes.put(index, classBoxData);
 		
+		classBoxData.setId(index);
 		return index;
 	}
 	

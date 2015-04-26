@@ -7,7 +7,7 @@ package com.group3.data;
  */
 public class ClassBoxData {
 	
-	private int posX, posY, width, height;
+	private int posX, posY, width, height, id;
 	private String[] boxes;
 	private String colorCode;
 	
@@ -71,6 +71,13 @@ public class ClassBoxData {
 	}
 	
 	/**
+	 * @return id
+	 */
+	public int getId() {
+		return this.id;
+	}
+	
+	/**
 	 * @return the background color string integer representation
 	 */
 	public String getBackgroundColorCode() {
@@ -110,6 +117,13 @@ public class ClassBoxData {
 	 */
 	public void setY(int y) {
 		this.posY = y;
+	}
+	
+	/**
+	 * @param id the new id of the Class Box
+	 */
+	public void setId(int id) {
+		this.id = id;
 	}
 	
 	/**

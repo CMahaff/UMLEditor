@@ -39,6 +39,8 @@ public class MenuListener implements ActionListener {
 		} else if(e.getActionCommand().equals("Save As")) {
 			this.viewManager.updateSelectedClassBoxChanges();
 			this.viewManager.saveAs();
+		} else if(e.getActionCommand().equals("Export")) {
+			this.viewManager.exportDialog();
 		} else if(e.getActionCommand().equals("Exit")) {
 			System.exit(0);
 		} else if(e.getActionCommand().equals("Class Box")) {

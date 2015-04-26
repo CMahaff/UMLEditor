@@ -1,7 +1,6 @@
 package com.group3.data;
 
 
-
 /**
  * @author Connor Mahaffey
  *         Brady Landis
@@ -10,6 +9,7 @@ public class ClassBoxData {
 	
 	private int posX, posY, width, height;
 	private String[] boxes;
+	private String colorCode;
 	
 	/**
 	 * Hold Class Box data for saving, reloading, etc.
@@ -20,13 +20,15 @@ public class ClassBoxData {
 	 * @param width width of the ClassBox view
 	 * @param height height of the ClassBox view
 	 * @param boxes array of strings representing the text sections of a class box
+	 * @param bgColor the integer representation of the background color of the Class Box view 
 	 */
-	public ClassBoxData(int posX, int posY, int width, int height, String[] boxes) {
+	public ClassBoxData(int posX, int posY, int width, int height, String[] boxes, String bgColorCode) {
 		this.posX = posX;
 		this.posY = posY;
 		this.width = width;
 		this.height = height;
 		this.boxes = boxes;
+		this.colorCode = bgColorCode;
 	}
 	
 	/**
@@ -69,6 +71,13 @@ public class ClassBoxData {
 	}
 	
 	/**
+	 * @return the background color string integer representation
+	 */
+	public String getBackgroundColorCode() {
+		return this.colorCode;
+	}
+	
+	/**
 	 * @param data a string array representing the sections of the Class Box
 	 */
 	public void setBoxes(String[] data) {
@@ -101,6 +110,13 @@ public class ClassBoxData {
 	 */
 	public void setY(int y) {
 		this.posY = y;
+	}
+	
+	/**
+	 * @param color the new background color code for the view
+	 */
+	public void setBackgroundColorCode(String bgColorCode) {
+		this.colorCode = bgColorCode;
 	}
 	
 	/**

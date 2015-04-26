@@ -1,5 +1,6 @@
 package com.group3.data;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -51,12 +52,13 @@ public class DataManager {
 	 * @param width the width of the Class Box
 	 * @param height the height of the Class Box
 	 * @param data the data inside the Class Box sections
+	 * @param colorCode the background color code for the Class Box
 	 * 
 	 * @return id for this new Class Box
 	 */
-	public int addClassBoxData(int locX, int locY, int width, int height, String[] data) {
+	public int addClassBoxData(int locX, int locY, int width, int height, String[] data, String colorCode) {
 		ClassBoxData classBoxData = new ClassBoxData(locX, locY,
-													 width, height, data);
+													 width, height, data, colorCode);
 		index++;
 		this.classBoxes.put(index, classBoxData);
 		
@@ -76,8 +78,8 @@ public class DataManager {
 	 */
 	public int addClassBoxData(int locX, int locY, int width, int height, String title) {
 		ClassBoxData classBoxData = new ClassBoxData(locX, locY,
-													 width, height,
-													 new String[]{ title, "" });
+													 width, height, new String[]{ title, "" },
+													 Color.gray.brighter().getRGB() + "");
 		index++;
 		this.classBoxes.put(index, classBoxData);
 		
@@ -127,6 +129,19 @@ public class DataManager {
 			classBoxData.setY(locY);
 			classBoxData.setWidth(width);
 			classBoxData.setHeight(height);
+		}
+	}
+	
+	/**
+	 * Updates the color of the class box
+	 * 
+	 * @param id the unique id of the Class Box
+	 * @param color the new color of the Class Box
+	 */
+	public void updateClassBoxColor(int id, String color) {
+		ClassBoxData classBoxData = this.classBoxes.get(id);
+		if(classBoxData != null) {
+			classBoxData.setBackgroundColorCode(color);
 		}
 	}
 	
@@ -308,6 +323,8 @@ public class DataManager {
 				entry.appendChild(width);
 				Element height = createElement(doc, "height", c.getHeight() + "");
 				entry.appendChild(height);
+				Element color = createElement(doc, "color", c.getBackgroundColorCode() + "");
+				entry.appendChild(color);
 				for(String s : c.getBoxes()) {
 					Element line = createElement(doc, "box", s);
 					entry.appendChild(line);

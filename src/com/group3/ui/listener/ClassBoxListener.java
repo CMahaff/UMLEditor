@@ -8,6 +8,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
+import javax.swing.JColorChooser;
 import javax.swing.JOptionPane;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
@@ -45,6 +46,12 @@ public class ClassBoxListener implements ActionListener, ComponentListener, Focu
 			this.classBox.createTextBox();
 		} else if(e.getActionCommand().equals("Remove Section")) {
 			this.classBox.removeTextBox();
+		} else if(e.getActionCommand().equals("Change Color")) {
+			Color newColor = JColorChooser.showDialog(null, "Select Class Box Color", this.classBox.getBackground());
+			if(newColor != null) {
+				this.classBox.setBackground(newColor);
+				this.viewManager.getDataManager().updateClassBoxColor(this.classBox.getId(), newColor.getRGB() + "");
+			}
 		} else {
 			System.out.println(e.getActionCommand());
 			JOptionPane.showMessageDialog(null, "This component is still in development.", 

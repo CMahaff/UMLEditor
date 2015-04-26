@@ -95,6 +95,9 @@ public class ClassBox extends JInternalFrame {
         menuItem = new JMenuItem("Remove Section");
         menuItem.addActionListener(this.classBoxListener);
         popup.add(menuItem);
+        menuItem = new JMenuItem("Change Color");
+        menuItem.addActionListener(this.classBoxListener);
+        popup.add(menuItem);
         menuItem = new JMenuItem("Delete Class Box");
         menuItem.addActionListener(this.classBoxListener);
         popup.add(menuItem);
@@ -135,7 +138,7 @@ public class ClassBox extends JInternalFrame {
 	 */
 	public void createTextBox() {
 		JTextArea textArea = new JTextArea();
-		textArea.setBackground(Color.GRAY.brighter());
+		textArea.setBackground(this.getBackground());
 		textArea.setFont(new Font("Times New Roman", Font.PLAIN, 14));
 		textArea.setLineWrap(true);
 		textArea.setWrapStyleWord(true);
@@ -237,14 +240,16 @@ public class ClassBox extends JInternalFrame {
 		int posY = Integer.parseInt(classBox.item(3).getTextContent());
 		int width = Integer.parseInt(classBox.item(5).getTextContent());
 		int height = Integer.parseInt(classBox.item(7).getTextContent());
-		String title = classBox.item(9).getTextContent();
+		Color bgColor = Color.decode(classBox.item(9).getTextContent());
+		String title = classBox.item(11).getTextContent();
 		
 		this.setLocation(posX, posY);
 		this.setSize(width, height);
+		this.setBackground(bgColor);
 		this.titleTextArea.setText(title);
 		
-		for(int i = 11; i < classBox.getLength(); i += 2) {
-			if(i > 11) {
+		for(int i = 13; i < classBox.getLength(); i += 2) {
+			if(i > 13) {
 				//first text box already created
 				this.createTextBox();
 			}
@@ -297,5 +302,22 @@ public class ClassBox extends JInternalFrame {
 	 */
 	public void setBorderColor(Color color) {
 		this.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, color));
+	}
+	
+	/**
+	 * Sets the background color of this component and its sub-components
+	 */
+	public void setBackground(Color color) {
+		super.setBackground(color);
+		if(this.titleTextArea == null) {
+			//not properly initialized yet
+			return;
+		}
+		this.titlePanel.setBackground(color);
+		this.titleTextArea.setBackground(color);
+		Iterator<JTextArea> area = this.textStack.iterator();
+		while(area.hasNext()) {
+			area.next().setBackground(color);
+		}
 	}
 }

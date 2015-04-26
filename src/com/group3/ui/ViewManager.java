@@ -6,9 +6,12 @@ import java.awt.Font;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
 import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -143,6 +146,7 @@ public class ViewManager {
 		file.add(createMenuItem("Open", font, menuListener, "CTRL", "O"));
 		file.add(createMenuItem("Save", font, menuListener, "CTRL", "S"));
 		file.add(createMenuItem("Save As", font, menuListener, "CTRL", "A"));
+		file.add(createMenuItem("Export", font, menuListener, "CTRL", "X"));
 		file.add(createMenuItem("Exit", font, menuListener, "CTRL", "E"));
 		
 		menuBar.add(file);
@@ -290,7 +294,8 @@ public class ViewManager {
 					
 					int id = this.dataRef.addClassBoxData(classBoxView.getX(), classBoxView.getY(),
 														  classBoxView.getWidth(), classBoxView.getHeight(), 
-														  classBoxView.getArrayRepresentation());
+														  classBoxView.getArrayRepresentation(),
+														  classBoxView.getBackground().getRGB() + "");
 					classBoxView.setId(id);
 					
 					if(classBoxView.getX() + classBoxView.getWidth() > maxWidth) {
@@ -366,6 +371,33 @@ public class ViewManager {
 			}
 			dataRef.saveModel(this.saveFile);
 			this.windowFrame.setTitle("UML Editor " + Main.version + " - " + this.saveFile.getName());
+		}
+	}
+	
+	/**
+	 * Runs the UI routines to export an image of the output
+	 */
+	public void exportDialog() {
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle("Export UML As");
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);		
+		
+		FileFilter filter = new FileNameExtensionFilter("PNG Graphic", "png");
+		fileChooser.setFileFilter(filter);
+		int choice = fileChooser.showSaveDialog(this.windowFrame);
+		
+		if(choice == JFileChooser.APPROVE_OPTION) {
+			File file = fileChooser.getSelectedFile();
+			if(!file.getAbsoluteFile().toString().toLowerCase().endsWith(".png")) {
+				file = new File(file.getAbsoluteFile().toString().concat(".png"));
+			}
+			BufferedImage image = this.umlScene.getExportImage();
+			try {
+				ImageIO.write(image, "png", file);
+			} catch (IOException e) {
+				System.err.println("Could not write image to disk!");
+				System.exit(1);
+			}
 		}
 	}
 	

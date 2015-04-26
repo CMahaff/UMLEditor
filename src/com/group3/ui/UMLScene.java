@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JDesktopPane;
 
@@ -448,5 +449,17 @@ public class UMLScene extends JDesktopPane {
 	 */
 	public RelationshipData getEditableRelationship() {
 		return this.editableRelationship;
+	}
+	
+	/**
+	 * Write the current screen to an image buffer
+	 * @return the current screen as an image buffer
+	 */
+	public BufferedImage getExportImage() {
+		BufferedImage image = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
+		Graphics2D graphics = image.createGraphics();
+		this.paintAll(graphics);
+		
+		return image;
 	}
 }

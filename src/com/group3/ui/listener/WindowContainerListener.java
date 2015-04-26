@@ -17,7 +17,8 @@ public class WindowContainerListener implements WindowListener, KeyEventDispatch
 	private ViewManager viewManager;
 	
 	/**
-	 * Listens for a window close message, and tells the view manager to do a save exit.
+	 * Listens for events in the main window
+	 * 
 	 * @param viewManager View Manager reference to call
 	 */
 	public WindowContainerListener(ViewManager viewManager) {
@@ -32,7 +33,7 @@ public class WindowContainerListener implements WindowListener, KeyEventDispatch
 
 	@Override
 	public void windowClosing(WindowEvent e) {
-		this.viewManager.doExit();
+		System.exit(0);
 	}
 
 	@Override

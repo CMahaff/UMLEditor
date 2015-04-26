@@ -40,7 +40,7 @@ import com.group3.ui.listener.WindowContainerListener;
 public class ViewManager {
 	
 	private DataManager dataRef;
-	private boolean exit, showRelationshipHint;
+	private boolean showRelationshipHint;
 	
 	private JFrame windowFrame;
 	private UMLScene umlScene;
@@ -123,7 +123,8 @@ public class ViewManager {
 	}
 	
 	/**
-	 * TODO: Add more types, fill in actions, possibly add submenus for Connectors
+	 * Creates the main menu bar for the UML window.
+	 * 
 	 * @param menuListener the listener object for the menu bar.
 	 * @return the JMenuBar for the program
 	 */
@@ -236,17 +237,6 @@ public class ViewManager {
 		this.dataRef.removeClassBoxData(classBox.getId());
 		this.umlScene.remove(classBox);
 		this.umlScene.repaint();
-	}
-	
-	
-	/**
-	 * TODO: Signal DataManager to save. Dispose of Views.
-	 */
-	public void doExit() {
-		//save here, when exit is set to true, it will exit *exactly then*
-		this.exit = true;
-		
-		System.exit(0);
 	}
 	
 	/**
@@ -398,13 +388,6 @@ public class ViewManager {
 	}
 	
 	/**
-	 * @return has the user told the view to exit
-	 */
-	public boolean isExiting() {
-		return this.exit;
-	}
-	
-	/**
 	 * @return Reference to the Data Manager
 	 */
 	public DataManager getDataManager() {
@@ -525,8 +508,11 @@ public class ViewManager {
 	}
 	
 	/**
-	 * TODO
-	 * @param enabled
+	 * Toggle whether this component is enabled.
+	 * 
+	 * When it is not enabled, you cannot edit this component.
+	 * 
+	 * @param enabled boolean to set the enabled value
 	 */
 	public void setEnabled(boolean enabled) {
 		this.windowFrame.setEnabled(enabled);

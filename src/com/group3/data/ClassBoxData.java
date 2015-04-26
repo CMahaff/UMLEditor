@@ -13,7 +13,6 @@ public class ClassBoxData {
 	
 	/**
 	 * Hold Class Box data for saving, reloading, etc.
-	 * TODO: Have ViewManager update at internals.
 	 * 
 	 * @param id unique id representing this object
 	 * @param posX x position of the ClassBox view
@@ -102,27 +101,6 @@ public class ClassBoxData {
 	 */
 	public void setY(int y) {
 		this.posY = y;
-	}
-	
-	/**
-	 * current plan, ---Xpos Ypos width height
-	 *              ---text;
-	 * in the text any semicolon ->;<- will be written as ";"(or "\";\"")
-	 * other symbols will be implemented as necessary
-	 * @return returns a string to be used for saving
-	 */
-	// TODO: Block tampering!
-	public String toSave(){
-		String str = this.posX + " " + this.posY + " " + 
-					 this.width + " " + this.height + ";";
-		String saveText = "";
-		for(String box : this.boxes){			
-			//box.replaceAll(";", "\";\"");
-			saveText += box + ";";
-		}
-		
-		str += saveText + "\n;;;\n";
-		return str;
 	}
 	
 	/**

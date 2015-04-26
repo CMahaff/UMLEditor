@@ -230,7 +230,7 @@ public class ClassBox extends JInternalFrame {
 	/**
 	 * Fill this Class Box with saved data.
 	 * 
-	 * @param data the data to parse
+	 * @param classBox an XML object representing the class box
 	 */
 	public void loadFromXMLData(NodeList classBox) {
 		int posX = Integer.parseInt(classBox.item(1).getTextContent());

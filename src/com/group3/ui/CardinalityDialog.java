@@ -20,6 +20,14 @@ public class CardinalityDialog extends JFrame implements WindowListener {
 	private RelationshipData relationshipData;
 	private ViewManager viewManager;
 	
+	/**
+	 * Creates a window to type cardinality values into.
+	 * 
+	 * The main window is disabled until this window closes.
+	 * 
+	 * @param relationshipData the relationship to modify
+	 * @param viewManager a reference to the view
+	 */
 	public CardinalityDialog(RelationshipData relationshipData, ViewManager viewManager) {
 		super();
 		this.relationshipData = relationshipData;
@@ -63,6 +71,10 @@ public class CardinalityDialog extends JFrame implements WindowListener {
 	@Override
 	public void windowClosed(WindowEvent e) {}
 
+	/**
+	 * Set the changes to the relationship data object, repaint, and re-enable
+	 * the main window as this window closes.
+	 */
 	@Override
 	public void windowClosing(WindowEvent e) {
 		this.relationshipData.setAmountSource(this.sourceAmount.getText());

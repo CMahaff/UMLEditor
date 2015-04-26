@@ -40,7 +40,7 @@ public class MenuListener implements ActionListener {
 			this.viewManager.updateSelectedClassBoxChanges();
 			this.viewManager.saveAs();
 		} else if(e.getActionCommand().equals("Exit")) {
-			this.viewManager.doExit();
+			System.exit(0);
 		} else if(e.getActionCommand().equals("Class Box")) {
 			this.viewManager.addClassBox();
 		} else if(e.getActionCommand().equals("Association")) {

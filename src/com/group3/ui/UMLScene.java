@@ -102,36 +102,36 @@ public class UMLScene extends JDesktopPane {
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getDestinationClassBox(), rotD, false);
 					drawConnection(g2d, p1, p2, rotS, rotD);
-					drawText(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
-					drawText(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
+					drawCardinality(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
+					drawCardinality(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
 					break;
 				case RelationshipData.DEPENDENCY:
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.ARROW], entry.getDestinationClassBox(), rotD, false);
 					drawDottedConnection(g2d, p1, p2, rotS, rotD);
-					drawText(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
-					drawText(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
+					drawCardinality(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
+					drawCardinality(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
 					break;
 				case RelationshipData.AGGREGATION:
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.DIAMOND], entry.getDestinationClassBox(), rotD, false);
 					drawConnection(g2d, p1, p2, rotS, rotD);
-					drawText(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
-					drawText(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
+					drawCardinality(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
+					drawCardinality(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
 					break;
 				case RelationshipData.COMPOSITION:
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.DIAMOND], entry.getDestinationClassBox(), rotD, true);
 					drawConnection(g2d, p1, p2, rotS, rotD);
-					drawText(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
-					drawText(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
+					drawCardinality(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
+					drawCardinality(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
 					break;
 				case RelationshipData.GENERALIZATION:
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.TRIANGLE], entry.getDestinationClassBox(), rotD, false);
 					drawConnection(g2d, p1, p2, rotS, rotD);
-					drawText(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
-					drawText(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
+					drawCardinality(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
+					drawCardinality(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
 					break;
 				default:
 					break;
@@ -185,13 +185,13 @@ public class UMLScene extends JDesktopPane {
 	}
 	
 	/**
-	 * TODO
+	 * Gets the x and y coordinate that a relationship polygon should be drawn at based on the rotation
+	 * as well as the width and height of the class box
 	 * 
-	 * @param polygon
-	 * @param classBox
-	 * @param rotation
-	 * @param fill
-	 * @return
+	 * @param polygon the polygon that will be drawn (i.e. arrowhead)
+	 * @param classBox the class box in question
+	 * @param rotation the rotation of the polygon
+	 * @return the x and y coordinate as an int[2]
 	 */
 	private int[] getClassBoxOffset(Polygon polygon, ClassBoxData classBox, double rotation) {
 		int x, y;
@@ -214,13 +214,13 @@ public class UMLScene extends JDesktopPane {
 	}
 	
 	/**
-	 * TODO
+	 * Adjust the relationship line connection location based on rotation
 	 * 
-	 * @param coord
-	 * @param rotation
-	 * @return
+	 * @param coord the x and y coordinate as an int[2]
+	 * @param rotation the rotation amount
+	 * @return the modified x and y coordinate as an int[2]
 	 */
-	private int[] getRotationAdjustments(int[] coord, double rotation) {
+	private int[] getConnectionAdjustments(int[] coord, double rotation) {
 		if(rotation == UMLScene.ROT_90) {
 			coord[0] -= HEIGHT / 2;
 		} else if(rotation == UMLScene.ROT_180) {
@@ -248,8 +248,8 @@ public class UMLScene extends JDesktopPane {
 	 */
 	private void drawConnection(Graphics2D g, int[] startCoord, int[] endCoord, double rotSource, double rotDest) {
 		
-		startCoord = getRotationAdjustments(startCoord, rotSource);
-		endCoord = getRotationAdjustments(endCoord, rotDest);
+		startCoord = getConnectionAdjustments(startCoord, rotSource);
+		endCoord = getConnectionAdjustments(endCoord, rotDest);
 		
 		g.drawLine(startCoord[0], startCoord[1], endCoord[0], endCoord[1]);
 
@@ -269,8 +269,8 @@ public class UMLScene extends JDesktopPane {
 	 * @param rotDest the rotation of the destination polygon
 	 */
 	private void drawDottedConnection(Graphics2D g, int[] startCoord, int[] endCoord, double rotSource, double rotDest) {
-		startCoord = getRotationAdjustments(startCoord, rotSource);
-		endCoord = getRotationAdjustments(endCoord, rotDest);
+		startCoord = getConnectionAdjustments(startCoord, rotSource);
+		endCoord = getConnectionAdjustments(endCoord, rotDest);
 		
 		double distance = getDistance(startCoord, endCoord);
 		double numOfSegments = Math.ceil(distance / 10);
@@ -291,9 +291,16 @@ public class UMLScene extends JDesktopPane {
 	}
 	
 	/**
-	 * TODO
+	 * Draws text at the ends of a relationship, slightly offset from the position
+	 * supplied (which should be the location of the ends of the relationship line)
+	 * 
+	 * @param g the graphics object used for drawing
+	 * @param text the text to draw
+	 * @param x the x position
+	 * @param y the y position
+	 * @param rotation the rotation amount
 	 */
-	private void drawText(Graphics2D g, String text, int x, int y, double rotation) {
+	private void drawCardinality(Graphics2D g, String text, int x, int y, double rotation) {
 		int size = text.length();//approximate pixel width
 		if(rotation == UMLScene.ROT_90) {
 			g.drawString(text, x - size, y - 10);
@@ -351,11 +358,12 @@ public class UMLScene extends JDesktopPane {
 	}
 	
 	/**
-	 * TODO
+	 * Selects the nearest relationship object to the given coordinates. If no 
+	 * relationships are within 10 pixels, nothing is selected.
 	 * 
-	 * @param posX
-	 * @param posY
-	 * @return
+	 * @param posX the x position to compare to
+	 * @param posY the y position to compare to
+	 * @return whether an editable relationship was selected
 	 */
 	public boolean selectEditableRelationship(int posX, int posY) {
 		
@@ -397,8 +405,8 @@ public class UMLScene extends JDesktopPane {
 			}
 			
 			//Adjust for rotation
-			startCoord = getRotationAdjustments(startCoord, rotS);
-			endCoord = getRotationAdjustments(endCoord, rotD);
+			startCoord = getConnectionAdjustments(startCoord, rotS);
+			endCoord = getConnectionAdjustments(endCoord, rotD);
 			
 			//In 10 pixel increments, see if we are close
 			double distance = getDistance(startCoord, endCoord);
@@ -426,7 +434,7 @@ public class UMLScene extends JDesktopPane {
 	}
 	
 	/**
-	 * TODO
+	 * Remove the editable relationship from the Data Manager
 	 */
 	public void removeEditableRelationship() {
 		this.dataManager.removeRelationshipData(this.editableRelationship.getSourceClassBox(), 
@@ -434,7 +442,9 @@ public class UMLScene extends JDesktopPane {
 	}
 	
 	/**
-	 * TODO
+	 * Get the editable relationship object
+	 * 
+	 * @return a Relationship Data object representing the editable relationship
 	 */
 	public RelationshipData getEditableRelationship() {
 		return this.editableRelationship;

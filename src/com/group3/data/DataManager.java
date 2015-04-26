@@ -36,8 +36,6 @@ public class DataManager {
 	/**
 	 * Manages all data for saving, reloading, etc. using a system
 	 * of unique integer id's.
-	 * 
-	 * TODO: Be able to hand undo's with a stack-like structure?
 	 */
 	public DataManager() {
 		index = 0;
@@ -370,7 +368,12 @@ public class DataManager {
 	}
 	
 	/**
-	 * TODO
+	 * Creates an XML element with the given name and string value
+	 * 
+	 * @param doc the XML document reference
+	 * @param name the name of the element
+	 * @param value the string value of the element
+	 * @return the generated xml element
 	 */
 	private Element createElement(Document doc, String name, String value) {
 		Element element = doc.createElement(name);

@@ -27,6 +27,7 @@ import org.w3c.dom.NodeList;
 
 import com.group3.Main;
 import com.group3.data.DataManager;
+import com.group3.data.RelationshipData;
 import com.group3.ui.listener.MenuListener;
 import com.group3.ui.listener.RelationshipMouseEventListener;
 import com.group3.ui.listener.UMLSceneManager;
@@ -98,11 +99,10 @@ public class ViewManager {
 		
 		this.windowFrame.add(scrollPane);
 		this.windowFrame.pack();
-		this.windowFrame.setVisible(true);
 		this.windowFrame.setLocationRelativeTo(null); //get window to be centered
+		this.windowFrame.setVisible(true);
 		
 		this.showRelationshipHint = true;
-		
 	}
 	
 
@@ -110,18 +110,17 @@ public class ViewManager {
 		
 		JPopupMenu popup = new JPopupMenu();
 		JMenuItem menuItem;
-		menuItem = new JMenuItem("Delete Relationship");
+		menuItem = new JMenuItem("Modify Cardinality");
 		menuItem.addActionListener(menuListener);
 		popup.add(menuItem);
-		menuItem = new JMenuItem("Add Cardinality");
+		menuItem = new JMenuItem("Delete Relationship");
 		menuItem.addActionListener(menuListener);
 		popup.add(menuItem);
 
 		this.popupListener = new RelationshipMouseEventListener(popup, window);
 		window.addMouseListener(this.popupListener);
-		
 
-}
+	}
 	
 	/**
 	 * TODO: Add more types, fill in actions, possibly add submenus for Connectors
@@ -320,7 +319,12 @@ public class ViewManager {
 					int type = Integer.parseInt(relationship.item(1).getTextContent());
 					int source = Integer.parseInt(relationship.item(3).getTextContent());
 					int dest = Integer.parseInt(relationship.item(5).getTextContent());
-					this.dataRef.addRelationshipData(source, dest, type);
+					String amountSource = relationship.item(7).getTextContent();
+					String amountDest = relationship.item(9).getTextContent();
+					int index = this.dataRef.addRelationshipData(source, dest, type);
+					RelationshipData rel = this.dataRef.getRelationshipData().get(index);
+					rel.setAmountSource(amountSource);
+					rel.setAmountDestination(amountDest);
 				}
 				
 				//set the window size big enough to display all the classes boxes that were added
@@ -518,6 +522,14 @@ public class ViewManager {
 	 */
 	public UMLScene getUMLScene() {
 		return this.umlScene;
+	}
+	
+	/**
+	 * TODO
+	 * @param enabled
+	 */
+	public void setEnabled(boolean enabled) {
+		this.windowFrame.setEnabled(enabled);
 	}
 }
 

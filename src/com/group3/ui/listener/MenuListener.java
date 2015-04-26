@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
 
 import com.group3.data.RelationshipData;
+import com.group3.ui.CardinalityDialog;
 import com.group3.ui.ViewManager;
 
 /**
@@ -55,6 +56,11 @@ public class MenuListener implements ActionListener {
 		} else if(e.getActionCommand().equals("Delete Relationship")) {
 			this.viewManager.getUMLScene().removeEditableRelationship();
 			this.viewManager.getUMLScene().repaint();
+		} else if(e.getActionCommand().equals("Modify Cardinality")) {
+			RelationshipData rel = this.viewManager.getUMLScene().getEditableRelationship();
+			CardinalityDialog cardinalityDialog = new CardinalityDialog(rel, this.viewManager);
+			cardinalityDialog.pack();
+			cardinalityDialog.setVisible(true);
 		} else if(e.getActionCommand().equals("Increase Window Size")) {
 			this.viewManager.resizeWindow(100);
 		} else if(e.getActionCommand().equals("Decrease Window Size")) {

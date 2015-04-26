@@ -102,26 +102,36 @@ public class UMLScene extends JDesktopPane {
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getDestinationClassBox(), rotD, false);
 					drawConnection(g2d, p1, p2, rotS, rotD);
+					drawText(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
+					drawText(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
 					break;
 				case RelationshipData.DEPENDENCY:
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.ARROW], entry.getDestinationClassBox(), rotD, false);
 					drawDottedConnection(g2d, p1, p2, rotS, rotD);
+					drawText(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
+					drawText(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
 					break;
 				case RelationshipData.AGGREGATION:
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.DIAMOND], entry.getDestinationClassBox(), rotD, false);
 					drawConnection(g2d, p1, p2, rotS, rotD);
+					drawText(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
+					drawText(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
 					break;
 				case RelationshipData.COMPOSITION:
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.DIAMOND], entry.getDestinationClassBox(), rotD, true);
 					drawConnection(g2d, p1, p2, rotS, rotD);
+					drawText(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
+					drawText(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
 					break;
 				case RelationshipData.GENERALIZATION:
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.TRIANGLE], entry.getDestinationClassBox(), rotD, false);
 					drawConnection(g2d, p1, p2, rotS, rotD);
+					drawText(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
+					drawText(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
 					break;
 				default:
 					break;
@@ -261,7 +271,6 @@ public class UMLScene extends JDesktopPane {
 	private void drawDottedConnection(Graphics2D g, int[] startCoord, int[] endCoord, double rotSource, double rotDest) {
 		startCoord = getRotationAdjustments(startCoord, rotSource);
 		endCoord = getRotationAdjustments(endCoord, rotDest);
-	
 		
 		double distance = getDistance(startCoord, endCoord);
 		double numOfSegments = Math.ceil(distance / 10);
@@ -278,6 +287,22 @@ public class UMLScene extends JDesktopPane {
 			}
 			xLoc = newX;
 			yLoc = newY;
+		}
+	}
+	
+	/**
+	 * TODO
+	 */
+	private void drawText(Graphics2D g, String text, int x, int y, double rotation) {
+		int size = text.length();//approximate pixel width
+		if(rotation == UMLScene.ROT_90) {
+			g.drawString(text, x - size, y - 10);
+		} else if(rotation == UMLScene.ROT_180) {
+			g.drawString(text, x + 10 - size, y + 12);
+		} else if(rotation == UMLScene.ROT_270) {
+			g.drawString(text, x - 8 - size, y - 10);
+		} else {
+			g.drawString(text, x + 10 - size, y - 12);
 		}
 	}
 	
@@ -406,5 +431,12 @@ public class UMLScene extends JDesktopPane {
 	public void removeEditableRelationship() {
 		this.dataManager.removeRelationshipData(this.editableRelationship.getSourceClassBox(), 
 												this.editableRelationship.getDestinationClassBox());
+	}
+	
+	/**
+	 * TODO
+	 */
+	public RelationshipData getEditableRelationship() {
+		return this.editableRelationship;
 	}
 }

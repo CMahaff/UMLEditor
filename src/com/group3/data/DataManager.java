@@ -163,8 +163,9 @@ public class DataManager {
 	 * @param sourceId the id of the source class box
 	 * @param destinationId the id of the destination class box
 	 * @param type the type of UML association
+	 * @return the unique identifier for this relationship
 	 */
-	public void addRelationshipData(int sourceId, int destinationId, int type) {
+	public int addRelationshipData(int sourceId, int destinationId, int type) {
 		ClassBoxData source = this.classBoxes.get(sourceId);
 		ClassBoxData destination = this.classBoxes.get(destinationId);
 		
@@ -173,6 +174,8 @@ public class DataManager {
 			index++;
 			this.relationships.put(index, relationshipData);
 		}
+		
+		return index;
 	}
 	
 	/**
@@ -331,6 +334,11 @@ public class DataManager {
 				entry.appendChild(source);
 				Element dest = createElement(doc, "dest", destId + "");
 				entry.appendChild(dest);
+				
+				Element sourceAmount = createElement(doc, "amountSource", r.getAmountSource());
+				entry.appendChild(sourceAmount);
+				Element destAmount = createElement(doc, "amountDest", r.getAmountDestination());
+				entry.appendChild(destAmount);
 				
 				relElement.appendChild(entry);
 			}

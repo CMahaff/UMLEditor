@@ -21,6 +21,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextArea;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
 
+import org.w3c.dom.NodeList;
+
 import com.group3.ui.listener.ClassBoxListener;
 import com.group3.ui.listener.MouseDragListener;
 import com.group3.ui.listener.MouseEventListener;
@@ -141,7 +143,7 @@ public class ClassBox extends JInternalFrame {
 		if(this.addBorder) {
 			textArea.setBorder(
 					BorderFactory.createCompoundBorder(
-							BorderFactory.createMatteBorder(4, 0, 0, 0, Color.BLACK), 
+							BorderFactory.createMatteBorder(2, 0, 0, 0, Color.BLACK), 
 							BorderFactory.createEmptyBorder(5, 5, 5, 5)
 						)
 					);
@@ -230,25 +232,24 @@ public class ClassBox extends JInternalFrame {
 	 * 
 	 * @param data the data to parse
 	 */
-	public void loadFromTextData(String data) {
-		String[] pieces = data.split(";");
+	public void loadFromXMLData(NodeList classBox) {
+		int posX = Integer.parseInt(classBox.item(1).getTextContent());
+		int posY = Integer.parseInt(classBox.item(3).getTextContent());
+		int width = Integer.parseInt(classBox.item(5).getTextContent());
+		int height = Integer.parseInt(classBox.item(7).getTextContent());
+		String title = classBox.item(9).getTextContent();
 		
-		String[] info = pieces[0].split(" ");
-		int posX = Integer.parseInt(info[0]);
-		int posY = Integer.parseInt(info[1]);
-		int width = Integer.parseInt(info[2]);
-		int height = Integer.parseInt(info[3]);
 		this.setLocation(posX, posY);
 		this.setSize(width, height);
-		this.titleTextArea.setText(pieces[1]);
+		this.titleTextArea.setText(title);
 		
-		for(int i = 2; i < pieces.length; ++i) {
-			if(i > 2) {
+		for(int i = 11; i < classBox.getLength(); i += 2) {
+			if(i > 11) {
 				//first text box already created
 				this.createTextBox();
 			}
 			JTextArea textArea = this.textStack.lastElement();
-			textArea.setText(pieces[i]);
+			textArea.setText(classBox.item(i).getTextContent());
 		}
 	}
 	

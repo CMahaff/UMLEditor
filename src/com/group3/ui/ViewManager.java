@@ -23,6 +23,8 @@ import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.w3c.dom.NodeList;
+
 import com.group3.Main;
 import com.group3.data.DataManager;
 import com.group3.ui.listener.MenuListener;
@@ -274,7 +276,6 @@ public class ViewManager {
 		if(choice == JFileChooser.APPROVE_OPTION) {
 			File file = fileChooser.getSelectedFile();
 			if(!file.getAbsoluteFile().toString().toLowerCase().endsWith(".uml")) {
-				//TODO: Remove?
 				JOptionPane.showMessageDialog(null, 
 						  "Cannot open file that do not end in .uml!", 
 						  "Error!",
@@ -283,32 +284,45 @@ public class ViewManager {
 				//clear old boxes out
 				this.umlScene.removeAll();
 				
+				//create new class boxes and add them back to the model
+				int maxWidth = 800, maxHeight = 600;
+				
 				//load text data from file
 				this.saveFile = file;
 				this.windowFrame.setTitle("UML Editor " + Main.version + " - " + file.getName());
-				String[] classBoxes = this.dataRef.loadModel(this.saveFile);
+				NodeList full = this.dataRef.loadModel(this.saveFile).getChildNodes();
+				NodeList classBoxes = full.item(1).getChildNodes();
 				
-				//create new class boxes and add them back to the model
-				int maxWidth = 800, maxHeight = 600;
-				for(int i = 0; i < classBoxes.length - 1; ++i) {
-					ClassBox classBox = new ClassBox("", this);
-					classBox.loadFromTextData(classBoxes[i]);
-					classBox.setVisible(true);
+				for(int i = 1; i < classBoxes.getLength(); i += 2) {
+					NodeList classBox = classBoxes.item(i).getChildNodes();
+					ClassBox classBoxView = new ClassBox("", this);
+					classBoxView.loadFromXMLData(classBox);
+					classBoxView.setVisible(true);
 					
-					int id = this.dataRef.addClassBoxData(classBox.getX(), classBox.getY(),
-														  classBox.getWidth(), classBox.getHeight(), 
-														  classBox.getArrayRepresentation());
-					classBox.setId(id);
+					int id = this.dataRef.addClassBoxData(classBoxView.getX(), classBoxView.getY(),
+														  classBoxView.getWidth(), classBoxView.getHeight(), 
+														  classBoxView.getArrayRepresentation());
+					classBoxView.setId(id);
 					
-					if(classBox.getX() + classBox.getWidth() > maxWidth) {
-						maxWidth = classBox.getX() + classBox.getWidth();
+					if(classBoxView.getX() + classBoxView.getWidth() > maxWidth) {
+						maxWidth = classBoxView.getX() + classBoxView.getWidth();
 					}
-					if(classBox.getY() + classBox.getHeight() > maxHeight) {
-						maxHeight = classBox.getY() + classBox.getHeight();
+					if(classBoxView.getY() + classBoxView.getHeight() > maxHeight) {
+						maxHeight = classBoxView.getY() + classBoxView.getHeight();
 					}
 					
-					this.umlScene.add(classBox);
+					this.umlScene.add(classBoxView);
 				}
+				
+				NodeList relationships = full.item(3).getChildNodes();
+				for(int i = 1; i < relationships.getLength(); i += 2) {
+					NodeList relationship = relationships.item(i).getChildNodes();
+					int type = Integer.parseInt(relationship.item(1).getTextContent());
+					int source = Integer.parseInt(relationship.item(3).getTextContent());
+					int dest = Integer.parseInt(relationship.item(5).getTextContent());
+					this.dataRef.addRelationshipData(source, dest, type);
+				}
+				
 				//set the window size big enough to display all the classes boxes that were added
 				this.umlScene.setPreferredSize(new Dimension(maxWidth, maxHeight));
 				this.umlScene.revalidate();

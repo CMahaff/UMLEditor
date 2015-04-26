@@ -1,16 +1,26 @@
 package com.group3.data;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Map.Entry;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import javax.swing.JOptionPane;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 /**
  * @author Connor Mahaffey
@@ -245,43 +255,22 @@ public class DataManager {
 	 * Loads a save file into the data manager
 	 * @param file UML file to load
 	 */
-	public String[] loadModel(File file) {
-		//TODO: checks for invalid data
-		//clear existing data
-		this.index = 0;
-		this.classBoxes.clear();
-		this.relationships.clear();
-		
-		//load text
-		String content = "";
+	public Element loadModel(File file) {
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(file));
-			String s = "";
-			do {
-				content += s + "\n";
-				s = reader.readLine();
-			} while(s != null);
-			reader.close();
-			content = content.substring(1);
-		} catch (FileNotFoundException e) {
-			// TODO: Improve error handling
-			JOptionPane.showMessageDialog(null, 
-										  "Could not read from file system!", 
-										  "Error!",
-										  JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
+			
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			
+			Document doc = builder.parse(file);
+			
+			return doc.getDocumentElement();
+			
+		} catch (ParserConfigurationException | SAXException | IOException e) {
+			System.err.println("Could not load file from file system.");
 			System.exit(1);
-		} catch (IOException e) {
-			// TODO: Improve error handling
-			JOptionPane.showMessageDialog(null, 
-										  "Problem reading from file system!", 
-										  "Error!",
-										  JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
-			System.exit(1);
+			
+			return null;
 		}
-	
-		return content.split("\n;;;\n");
 	}
 	
 	/**
@@ -289,23 +278,97 @@ public class DataManager {
 	 * @param file file to save to
 	 */
 	public void saveModel(File file){
-		String str = "";
-		for (Entry<Integer, ClassBoxData> entry : this.classBoxes.entrySet()){
-			str += entry.getValue().toSave();
+		
+		HashMap<ClassBoxData, Integer> conversion = new HashMap<ClassBoxData, Integer>();
+		
+		int newIndex = 1;
+		for(ClassBoxData c : this.classBoxes.values()) {
+			conversion.put(c, newIndex);
+			newIndex++;
 		}
 		
 		try {
-			PrintWriter saveFile = new PrintWriter(file);
-			saveFile.println(str);
-			saveFile.close();
-		} catch (FileNotFoundException e) {
-			JOptionPane.showMessageDialog(null, 
-										  "Could not save to file system!", 
-										  "Error!",
-										  JOptionPane.ERROR_MESSAGE);
+			
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			
+			Document doc = builder.newDocument();
+			
+			Element root = doc.createElement("UMLEditorSave");
+			Element cbElement = doc.createElement("ClassBoxes");
+			
+			for(ClassBoxData c : this.classBoxes.values()) {
+				Element entry = doc.createElement("ClassBox");
+				Element x = createElement(doc, "x", c.getX() + "");
+				entry.appendChild(x);
+				Element y = createElement(doc, "y", c.getY() + "");
+				entry.appendChild(y);
+				Element width = createElement(doc, "width", c.getWidth() + "");
+				entry.appendChild(width);
+				Element height = createElement(doc, "height", c.getHeight() + "");
+				entry.appendChild(height);
+				for(String s : c.getBoxes()) {
+					Element line = createElement(doc, "box", s);
+					entry.appendChild(line);
+				}
+				
+				cbElement.appendChild(entry);
+			}
+			
+			root.appendChild(cbElement);
+			
+			Element relElement = doc.createElement("Relationships");
+			
+			for(RelationshipData r : this.relationships.values()) {
+				Element entry = doc.createElement("Relationship");
+				Element type = createElement(doc, "type", r.getType() + "");
+				entry.appendChild(type);
+				
+				int sourceId = conversion.get(r.getSourceClassBox());
+				int destId = conversion.get(r.getDestinationClassBox());
+				
+				Element source = createElement(doc, "source", sourceId + "");
+				entry.appendChild(source);
+				Element dest = createElement(doc, "dest", destId + "");
+				entry.appendChild(dest);
+				
+				relElement.appendChild(entry);
+			}
+			
+			root.appendChild(relElement);
+			
+			doc.appendChild(root);
+			
+			try {
+				Transformer transformer = TransformerFactory.newInstance().newTransformer();
+				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+				transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+				transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+				transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+				
+				transformer.transform(new DOMSource(doc), 
+									  new StreamResult(new FileOutputStream(file)));
+			
+			} catch (TransformerException e) {
+				System.exit(1);
+			} catch (IOException e) {
+				System.err.println("Could not write save file to disk!");
+				System.exit(1);
+			}
+			
+		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
-			System.exit(1);
-		}		
+		}
+	}
+	
+	/**
+	 * TODO
+	 */
+	private Element createElement(Document doc, String name, String value) {
+		Element element = doc.createElement(name);
+		element.appendChild(doc.createTextNode(value));
+		
+		return element;
 	}
 	
 	/**

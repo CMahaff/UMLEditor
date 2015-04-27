@@ -3,7 +3,14 @@ package com.group3.test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+
+import org.w3c.dom.NodeList;
+
+import com.group3.Main;
 import com.group3.data.DataManager;
+import com.group3.ui.ClassBox;
+import com.group3.ui.ViewManager;
 
 public class Test {
 	
@@ -74,45 +81,6 @@ public class Test {
 		
 	}
 	
-	//Use both types of "addClassBoxData"
-	@org.junit.Test
-	public void savingAndOpen(){
-		/*
-		File saveFile = new File("test.uml");		
-			
-		DataManager dataManagerOne = new DataManager();
-		
-		dataManagerOne.addClassBoxData(0, 0, 0, 0, "Test1");
-		dataManagerOne.addClassBoxData(0, 0, 0, 0, new String[]{"Test2", ""});
-		
-		String dataManagerOneString = dataManagerOne.toString();
-		
-		dataManagerOne.saveModel(saveFile);
-		
-		DataManager dataManagerTwo = new DataManager();
-				
-		String[] classBoxes = dataManagerTwo.loadModel(saveFile);
-		for(int i = 0; i < classBoxes.length - 1; ++i) {
-			ClassBox classBox = new ClassBox("", null);	
-			classBox.loadFromTextData(classBoxes[i]);
-			classBox.setSize(0, 0);
-			int id = dataManagerTwo.addClassBoxData(classBox.getX(), classBox.getY(), 
-													classBox.getWidth(), classBox.getHeight(),
-													classBox.getArrayRepresentation());
-			classBox.setId(id);
-			
-		}	
-		
-		String dataManagerTwoString = dataManagerTwo.toString();
-		
-		System.out.println(dataManagerOneString);
-		System.out.println(dataManagerTwoString);
 	
-		assertTrue(dataManagerOneString.equals(dataManagerTwoString));
-		
-		saveFile.delete();
-		*/
-		
-	}
 	
 }

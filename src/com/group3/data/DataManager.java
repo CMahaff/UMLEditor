@@ -1,19 +1,32 @@
 package com.group3.data;
 
-import java.io.BufferedReader;
+import java.awt.Color;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import javax.swing.JOptionPane;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 /**
  * @author Connor Mahaffey
  *         Brady Landis
+ *         David Mengel
  */
 public class DataManager {
 	
@@ -24,8 +37,6 @@ public class DataManager {
 	/**
 	 * Manages all data for saving, reloading, etc. using a system
 	 * of unique integer id's.
-	 * 
-	 * TODO: Be able to hand undo's with a stack-like structure?
 	 */
 	public DataManager() {
 		index = 0;
@@ -41,15 +52,17 @@ public class DataManager {
 	 * @param width the width of the Class Box
 	 * @param height the height of the Class Box
 	 * @param data the data inside the Class Box sections
+	 * @param colorCode the background color code for the Class Box
 	 * 
 	 * @return id for this new Class Box
 	 */
-	public int addClassBoxData(int locX, int locY, int width, int height, String[] data) {
+	public int addClassBoxData(int locX, int locY, int width, int height, String[] data, String colorCode) {
 		ClassBoxData classBoxData = new ClassBoxData(locX, locY,
-													 width, height, data);
+													 width, height, data, colorCode);
 		index++;
 		this.classBoxes.put(index, classBoxData);
 		
+		classBoxData.setId(index);
 		return index;
 	}
 	
@@ -66,11 +79,12 @@ public class DataManager {
 	 */
 	public int addClassBoxData(int locX, int locY, int width, int height, String title) {
 		ClassBoxData classBoxData = new ClassBoxData(locX, locY,
-													 width, height,
-													 new String[]{ title, "" });
+													 width, height, new String[]{ title, "" },
+													 Color.gray.brighter().getRGB() + "");
 		index++;
 		this.classBoxes.put(index, classBoxData);
 		
+		classBoxData.setId(index);
 		return index;
 	}
 	
@@ -121,6 +135,19 @@ public class DataManager {
 	}
 	
 	/**
+	 * Updates the color of the class box
+	 * 
+	 * @param id the unique id of the Class Box
+	 * @param color the new color of the Class Box
+	 */
+	public void updateClassBoxColor(int id, String color) {
+		ClassBoxData classBoxData = this.classBoxes.get(id);
+		if(classBoxData != null) {
+			classBoxData.setBackgroundColorCode(color);
+		}
+	}
+	
+	/**
 	 * Remove a Class Box with a given id.
 	 * 
 	 * This will also remove any relationships associated with this class box.
@@ -130,11 +157,19 @@ public class DataManager {
 	public void removeClassBoxData(int id) {
 		ClassBoxData classBox = this.classBoxes.remove(id);
 		
+		ArrayList<Integer> keysToRemove = new ArrayList<Integer>();
+		
 		for(Entry<Integer, RelationshipData> entry : this.relationships.entrySet()) {
 			if(entry.getValue().getSourceClassBox() == classBox ||
 			   entry.getValue().getDestinationClassBox() == classBox) {
-				this.relationships.remove(entry.getKey());
+				//cannot remove the key directly here, causes an error 
+				//since the entry set is modified while being traversed
+				keysToRemove.add(entry.getKey());
 			}
+		}
+		
+		for(int key : keysToRemove){
+			this.relationships.remove(key);
 		}
 	}
 	
@@ -143,8 +178,9 @@ public class DataManager {
 	 * @param sourceId the id of the source class box
 	 * @param destinationId the id of the destination class box
 	 * @param type the type of UML association
+	 * @return the unique identifier for this relationship
 	 */
-	public void addRelationshipData(int sourceId, int destinationId, int type) {
+	public int addRelationshipData(int sourceId, int destinationId, int type) {
 		ClassBoxData source = this.classBoxes.get(sourceId);
 		ClassBoxData destination = this.classBoxes.get(destinationId);
 		
@@ -153,8 +189,71 @@ public class DataManager {
 			index++;
 			this.relationships.put(index, relationshipData);
 		}
+		
+		return index;
 	}
 	
+	/**
+	 * Removes all relationships between two 
+	 * @param sourceId the id of the source class box
+	 * @param destinationId the id of the destination class box
+	 */
+	
+	public void removeRelationshipData(int sourceId, int destinationId) {
+		ClassBoxData source = this.classBoxes.get(sourceId);
+		ClassBoxData destination = this.classBoxes.get(destinationId);
+		
+		ArrayList<Integer> keysToRemove = new ArrayList<Integer>();
+		
+		if(source != null && destination != null) {
+			for(Entry<Integer, RelationshipData> entry : this.relationships.entrySet()) {
+				if((entry.getValue().getSourceClassBox() == source ||
+					entry.getValue().getSourceClassBox() == destination ) && 
+				   (entry.getValue().getDestinationClassBox() == source ||
+					entry.getValue().getDestinationClassBox() == destination )) {
+					
+					keysToRemove.add(entry.getKey());
+
+				}
+				
+	
+				}
+			for(int key : keysToRemove){
+				this.relationships.remove(key);
+			
+			}
+		}
+	}
+	
+	/**
+	 * removes all relationships between two classboxes through the classboxdata
+	 * @param source classboxdata of the source box
+	 * @param destination classboxdata of the destination box
+	 */
+	public void removeRelationshipData(ClassBoxData source, ClassBoxData destination) {
+
+		
+		ArrayList<Integer> keysToRemove = new ArrayList<Integer>();
+		
+		if(source != null && destination != null) {
+			for(Entry<Integer, RelationshipData> entry : this.relationships.entrySet()) {
+				if((entry.getValue().getSourceClassBox() == source ||
+					entry.getValue().getSourceClassBox() == destination ) && 
+				   (entry.getValue().getDestinationClassBox() == source ||
+					entry.getValue().getDestinationClassBox() == destination )) {
+					
+					keysToRemove.add(entry.getKey());
+
+				}
+				
+	
+				}
+			for(int key : keysToRemove){
+				this.relationships.remove(key);
+			
+			}
+		}
+	}
 	/**
 	 * @return the collection of Class Box data
 	 */
@@ -174,43 +273,22 @@ public class DataManager {
 	 * Loads a save file into the data manager
 	 * @param file UML file to load
 	 */
-	public String[] loadModel(File file) {
-		//TODO: checks for invalid data
-		//clear existing data
-		this.index = 0;
-		this.classBoxes.clear();
-		this.relationships.clear();
-		
-		//load text
-		String content = "";
+	public Element loadModel(File file) {
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(file));
-			String s = "";
-			do {
-				content += s + "\n";
-				s = reader.readLine();
-			} while(s != null);
-			reader.close();
-			content = content.substring(1);
-		} catch (FileNotFoundException e) {
-			// TODO: Improve error handling
-			JOptionPane.showMessageDialog(null, 
-										  "Could not read from file system!", 
-										  "Error!",
-										  JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
+			
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			
+			Document doc = builder.parse(file);
+			
+			return doc.getDocumentElement();
+			
+		} catch (ParserConfigurationException | SAXException | IOException e) {
+			System.err.println("Could not load file from file system.");
 			System.exit(1);
-		} catch (IOException e) {
-			// TODO: Improve error handling
-			JOptionPane.showMessageDialog(null, 
-										  "Problem reading from file system!", 
-										  "Error!",
-										  JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
-			System.exit(1);
+			
+			return null;
 		}
-	
-		return content.split("\n;;;\n");
 	}
 	
 	/**
@@ -218,23 +296,109 @@ public class DataManager {
 	 * @param file file to save to
 	 */
 	public void saveModel(File file){
-		String str = "";
-		for (Entry<Integer, ClassBoxData> entry : this.classBoxes.entrySet()){
-			str += entry.getValue().toSave();
+		
+		HashMap<ClassBoxData, Integer> conversion = new HashMap<ClassBoxData, Integer>();
+		
+		int newIndex = 1;
+		for(ClassBoxData c : this.classBoxes.values()) {
+			conversion.put(c, newIndex);
+			newIndex++;
 		}
 		
 		try {
-			PrintWriter saveFile = new PrintWriter(file);
-			saveFile.println(str);
-			saveFile.close();
-		} catch (FileNotFoundException e) {
-			JOptionPane.showMessageDialog(null, 
-										  "Could not save to file system!", 
-										  "Error!",
-										  JOptionPane.ERROR_MESSAGE);
+			
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			
+			Document doc = builder.newDocument();
+			
+			Element root = doc.createElement("UMLEditorSave");
+			Element cbElement = doc.createElement("ClassBoxes");
+			
+			for(ClassBoxData c : this.classBoxes.values()) {
+				Element entry = doc.createElement("ClassBox");
+				Element x = createElement(doc, "x", c.getX() + "");
+				entry.appendChild(x);
+				Element y = createElement(doc, "y", c.getY() + "");
+				entry.appendChild(y);
+				Element width = createElement(doc, "width", c.getWidth() + "");
+				entry.appendChild(width);
+				Element height = createElement(doc, "height", c.getHeight() + "");
+				entry.appendChild(height);
+				Element color = createElement(doc, "color", c.getBackgroundColorCode() + "");
+				entry.appendChild(color);
+				for(String s : c.getBoxes()) {
+					Element line = createElement(doc, "box", s);
+					entry.appendChild(line);
+				}
+				
+				cbElement.appendChild(entry);
+			}
+			
+			root.appendChild(cbElement);
+			
+			Element relElement = doc.createElement("Relationships");
+			
+			for(RelationshipData r : this.relationships.values()) {
+				Element entry = doc.createElement("Relationship");
+				Element type = createElement(doc, "type", r.getType() + "");
+				entry.appendChild(type);
+				
+				int sourceId = conversion.get(r.getSourceClassBox());
+				int destId = conversion.get(r.getDestinationClassBox());
+				
+				Element source = createElement(doc, "source", sourceId + "");
+				entry.appendChild(source);
+				Element dest = createElement(doc, "dest", destId + "");
+				entry.appendChild(dest);
+				
+				Element sourceAmount = createElement(doc, "amountSource", r.getAmountSource());
+				entry.appendChild(sourceAmount);
+				Element destAmount = createElement(doc, "amountDest", r.getAmountDestination());
+				entry.appendChild(destAmount);
+				
+				relElement.appendChild(entry);
+			}
+			
+			root.appendChild(relElement);
+			
+			doc.appendChild(root);
+			
+			try {
+				Transformer transformer = TransformerFactory.newInstance().newTransformer();
+				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+				transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+				transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+				transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+				
+				transformer.transform(new DOMSource(doc), 
+									  new StreamResult(new FileOutputStream(file)));
+			
+			} catch (TransformerException e) {
+				System.exit(1);
+			} catch (IOException e) {
+				System.err.println("Could not write save file to disk!");
+				System.exit(1);
+			}
+			
+		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
-			System.exit(1);
-		}		
+		}
+	}
+	
+	/**
+	 * Creates an XML element with the given name and string value
+	 * 
+	 * @param doc the XML document reference
+	 * @param name the name of the element
+	 * @param value the string value of the element
+	 * @return the generated xml element
+	 */
+	private Element createElement(Document doc, String name, String value) {
+		Element element = doc.createElement(name);
+		element.appendChild(doc.createTextNode(value));
+		
+		return element;
 	}
 	
 	/**

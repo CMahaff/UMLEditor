@@ -6,18 +6,18 @@ public class KeyboardShortcuts {
 	private int[] charactersArray = new int[26];
 	private int[] masksArray = new int[] {1, 2, 8};
 	
-	public static void Main(String[] args){
-		
-		//System.out.println(checkKey("SHIFT"));
-		
-	}
-	
+	/**
+	 * Instantiates the shortcut key values
+	 */
 	public KeyboardShortcuts(){
 		fillArrays();
 	}
 	
-	//Checks value of key
-	//Number, letter, or mask
+	/**
+	 * Finds the value of the key and returns it
+	 * @param key english word/abreviation for the key
+	 * @return the mask/value for the key
+	 */
 	public int checkKey(String key){
 		key.toUpperCase();	
 		int value = 0;
@@ -104,7 +104,11 @@ public class KeyboardShortcuts {
 		return value;
 	}
 	
-	private  void fillArrays(){
+	/**
+	 * Fills an array holding the character and number masks,
+	 * which are sequential in value
+	 */
+	private void fillArrays(){
 		
 		int numbersStart = 48;
 		int charsStart = 65;

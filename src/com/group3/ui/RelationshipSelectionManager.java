@@ -9,13 +9,19 @@ public class RelationshipSelectionManager {
 	private ClassBox[] selectedClassBoxes;
 	private int index, relationshipType;
 	
+	/**
+	 * Helps keep track of which class boxes are being linked in a relationship
+	 * @param viewRef a reference to the View Manager
+	 * @param relationshipType the type of relationship this selection will create
+	 */
 	public RelationshipSelectionManager(ViewManager viewRef, int relationshipType) {
 		this.viewRef = viewRef;
 		this.selectedClassBoxes = new ClassBox[2];
 		this.index = 0;
 		this.relationshipType = relationshipType;
 	}
-	
+
+
 	/**
 	 * Keeps track of which Class Boxes we are linking with a relationship.
 	 * 
@@ -23,6 +29,7 @@ public class RelationshipSelectionManager {
 	 * 
 	 * After the 2nd class box is chosen, the relationship is added and the selection
 	 * event is stopped.
+	 * 
 	 * 
 	 * @param classBox the class box to add
 	 */
@@ -37,11 +44,16 @@ public class RelationshipSelectionManager {
 			this.viewRef.getDataManager().addRelationshipData(this.selectedClassBoxes[0].getId(),
 															  this.selectedClassBoxes[1].getId(), 
 															  this.relationshipType);
+			
 			this.viewRef.endRelationshipSelection();
 			this.selectedClassBoxes[0].setBorderColor(Color.BLACK);
 			this.selectedClassBoxes[1].setBorderColor(Color.BLACK);
-			this.viewRef.repaintUML();
+			
+			this.viewRef.getUMLScene().repaint();
+			index = 0;
+			
 		}
 	}
+
 
 }

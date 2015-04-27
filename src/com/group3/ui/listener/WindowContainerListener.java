@@ -1,6 +1,8 @@
 package com.group3.ui.listener;
 
 import java.awt.KeyEventDispatcher;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -10,12 +12,13 @@ import com.group3.ui.ViewManager;
 /**
  * @author Connor Mahaffey
  */
-public class WindowContainerListener implements WindowListener, KeyEventDispatcher {
+public class WindowContainerListener implements WindowListener, KeyEventDispatcher, ComponentListener {
 	
 	private ViewManager viewManager;
 	
 	/**
-	 * Listens for a window close message, and tells the view manager to do a save exit.
+	 * Listens for events in the main window
+	 * 
 	 * @param viewManager View Manager reference to call
 	 */
 	public WindowContainerListener(ViewManager viewManager) {
@@ -30,7 +33,7 @@ public class WindowContainerListener implements WindowListener, KeyEventDispatch
 
 	@Override
 	public void windowClosing(WindowEvent e) {
-		this.viewManager.doExit();
+		System.exit(0);
 	}
 
 	@Override
@@ -45,6 +48,9 @@ public class WindowContainerListener implements WindowListener, KeyEventDispatch
 	@Override
 	public void windowOpened(WindowEvent e) {}
 
+	/**
+	 * End the relationship selection event if ESC is pressed
+	 */
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent e) {
 		if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
@@ -52,4 +58,22 @@ public class WindowContainerListener implements WindowListener, KeyEventDispatch
 		}
 		return false;
 	}
+
+	@Override
+	public void componentHidden(ComponentEvent e) {}
+
+	@Override
+	public void componentMoved(ComponentEvent e) {}
+
+	/**
+	 * If the main window is resized, handle expanding the inner
+	 * drawable frame, so that it will become scrollable
+	 */
+	@Override
+	public void componentResized(ComponentEvent e) {
+		this.viewManager.resizeToFit();
+	}
+
+	@Override
+	public void componentShown(ComponentEvent e) {}
 }

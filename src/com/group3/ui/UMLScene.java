@@ -1,12 +1,12 @@
 package com.group3.ui;
 
 import java.awt.BasicStroke;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JDesktopPane;
 
@@ -17,6 +17,7 @@ import com.group3.data.RelationshipData;
 
 /**
  * @author Connor Mahaffey
+ * 		   Dave Mengel
  */
 @SuppressWarnings("serial")
 public class UMLScene extends JDesktopPane {
@@ -30,7 +31,15 @@ public class UMLScene extends JDesktopPane {
 	
 	private DataManager dataManager;
 	private Polygon[] polygons = new Polygon[4];
+	private RelationshipData editableRelationship;
+
+
 	
+	/**
+	 * Draws the relationship connections to the scene
+	 * 
+	 * @param dataManager a reference to the Data Manager
+	 */
 	public UMLScene(DataManager dataManager) {
 		this.dataManager = dataManager;
 		
@@ -83,7 +92,7 @@ public class UMLScene extends JDesktopPane {
 		g2d.setBackground(this.getBackground());
 		g2d.clearRect(0, 0, this.getWidth(), this.getHeight());
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g2d.setStroke(new BasicStroke(2));
+		g2d.setStroke(new BasicStroke(1));
 		
 		for(RelationshipData entry : this.dataManager.getRelationshipData().values()) {
 			double rotS = getRotation(entry.getSourceClassBox(), entry.getDestinationClassBox());
@@ -94,33 +103,44 @@ public class UMLScene extends JDesktopPane {
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getDestinationClassBox(), rotD, false);
 					drawConnection(g2d, p1, p2, rotS, rotD);
+					drawCardinality(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
+					drawCardinality(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
 					break;
 				case RelationshipData.DEPENDENCY:
-					//TODO: Add dashed line instead of solid line
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.ARROW], entry.getDestinationClassBox(), rotD, false);
-					drawConnection(g2d, p1, p2, rotS, rotD);
+					drawDottedConnection(g2d, p1, p2, rotS, rotD);
+					drawCardinality(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
+					drawCardinality(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
 					break;
 				case RelationshipData.AGGREGATION:
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.DIAMOND], entry.getDestinationClassBox(), rotD, false);
 					drawConnection(g2d, p1, p2, rotS, rotD);
+					drawCardinality(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
+					drawCardinality(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
 					break;
 				case RelationshipData.COMPOSITION:
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.DIAMOND], entry.getDestinationClassBox(), rotD, true);
 					drawConnection(g2d, p1, p2, rotS, rotD);
+					drawCardinality(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
+					drawCardinality(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
 					break;
 				case RelationshipData.GENERALIZATION:
 					p1 = drawPolygon(g2d, polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS, false);
 					p2 = drawPolygon(g2d, polygons[UMLScene.TRIANGLE], entry.getDestinationClassBox(), rotD, false);
 					drawConnection(g2d, p1, p2, rotS, rotD);
+					drawCardinality(g2d, entry.getAmountSource(), p1[0], p1[1], rotS);
+					drawCardinality(g2d, entry.getAmountDestination(), p2[0], p2[1], rotD);
 					break;
 				default:
 					break;
 			}
 		}
+		
 	}
+	
 	
 	/**
 	 * Draws a polygon next to a ClassBox with a given rotation
@@ -136,6 +156,45 @@ public class UMLScene extends JDesktopPane {
 	 * @return a size 2 integer array, representing the x and y coordinates where the polygon was actually drawn
 	 */
 	private int[] drawPolygon(Graphics2D g, Polygon polygon, ClassBoxData classBox, double rotation, boolean fill) {
+		//The x and y position of the polygon
+		int pos[] = getClassBoxOffset(polygon, classBox, rotation);
+		
+		//save our old settings to revert when we are done rotating, etc.
+		//otherwise ClassBoxes will be upside-down and other nonsense
+		AffineTransform old = g.getTransform();
+		
+		//get a copy of the transform to edit
+		//the following steps basically occur in reverse order -  Graphics2D is weird like that
+		AffineTransform transform = g.getTransform();
+		//translate to our final position
+        transform.translate(pos[0], pos[1]);
+        //rotate our object about its center (see code below)
+        transform.rotate(rotation);
+        //translate our geometry to its center
+        transform.translate(-polygon.getBounds().width / 2, -polygon.getBounds().height / 2);
+        //apply our transformation to our graphics object
+        g.setTransform(transform);
+        //draw our transformed polygon
+        g.drawPolygon(polygon);
+        if(fill) {
+        	g.fillPolygon(polygon);
+        }
+        //Change our transform back to normal
+        g.setTransform(old);
+        
+        return pos;
+	}
+	
+	/**
+	 * Gets the x and y coordinate that a relationship polygon should be drawn at based on the rotation
+	 * as well as the width and height of the class box
+	 * 
+	 * @param polygon the polygon that will be drawn (i.e. arrowhead)
+	 * @param classBox the class box in question
+	 * @param rotation the rotation of the polygon
+	 * @return the x and y coordinate as an int[2]
+	 */
+	private int[] getClassBoxOffset(Polygon polygon, ClassBoxData classBox, double rotation) {
 		int x, y;
 		
 		if(rotation == UMLScene.ROT_90) {
@@ -152,31 +211,52 @@ public class UMLScene extends JDesktopPane {
 			y = classBox.getY() + classBox.getHeight() + polygon.getBounds().height / 2;
 		}
 		
-		//save our old settings to revert when we are done rotating, etc.
-		//otherwise ClassBoxes will be upside-down and other nonsense
-		AffineTransform old = g.getTransform();
-		
-		//get a copy of the transform to edit
-		//the following steps basically occur in reverse order -  Graphics2D is weird like that
-		AffineTransform transform = g.getTransform();
-		//translate to our final position
-        transform.translate(x, y);
-        //rotate our object about its center (see code below)
-        transform.rotate(rotation);
-        //translate our geometry to its center
-        transform.translate(-polygon.getBounds().width / 2, -polygon.getBounds().height / 2);
-        //apply our transformation to our graphics object
-        g.setTransform(transform);
-        //draw our transformed polygon
-        g.drawPolygon(polygon);
-        if(fill) {
-        	g.fillPolygon(polygon);
-        }
-        //Change our transform back to normal
-        g.setTransform(old);
-        
-        return new int[]{x, y};
+		return new int[]{x, y};
 	}
+	
+	/**
+	 * Adjust the relationship line connection location based on rotation
+	 * 
+	 * @param coord the x and y coordinate as an int[2]
+	 * @param rotation the rotation amount
+	 * @return the modified x and y coordinate as an int[2]
+	 */
+	private int[] getConnectionAdjustments(int[] coord, double rotation) {
+		if(rotation == UMLScene.ROT_90) {
+			coord[0] -= HEIGHT / 2;
+		} else if(rotation == UMLScene.ROT_180) {
+			coord[1] -= HEIGHT / 2;
+		} else if(rotation == UMLScene.ROT_270) {
+			coord[0] += HEIGHT / 2;
+		} else {
+			coord[1] += HEIGHT / 2;
+		}
+		
+		return coord;
+	}
+	
+	/**
+	 * Draws the dotted connecting line between 2 Class Boxes, 
+	 * adjusting their location based on the starting rotation.
+	 * 
+	 * This class should be used in conjunction with drawPolygon.
+	 * 
+	 * @param g the Graphics2D object to use
+	 * @param startCoord the starting coordinates of the drawn polygon
+	 * @param endCoord the ending coordinates of the drawn polygon
+	 * @param rotSource the rotation of the source polygon
+	 * @param rotDest the rotation of the destination polygon
+	 */
+	private void drawConnection(Graphics2D g, int[] startCoord, int[] endCoord, double rotSource, double rotDest) {
+		
+		startCoord = getConnectionAdjustments(startCoord, rotSource);
+		endCoord = getConnectionAdjustments(endCoord, rotDest);
+		
+		g.drawLine(startCoord[0], startCoord[1], endCoord[0], endCoord[1]);
+
+	}
+	
+
 	
 	/**
 	 * Draws the connecting line between 2 Class Boxes, adjusting their location based on the starting rotation.
@@ -189,30 +269,59 @@ public class UMLScene extends JDesktopPane {
 	 * @param rotSource the rotation of the source polygon
 	 * @param rotDest the rotation of the destination polygon
 	 */
-	private void drawConnection(Graphics2D g, int[] startCoord, int[] endCoord, double rotSource, double rotDest) {
-		if(rotSource == UMLScene.ROT_90) {
-			startCoord[0] -= HEIGHT / 2;
-		} else if(rotSource == UMLScene.ROT_180) {
-			startCoord[1] -= HEIGHT / 2;
-		} else if(rotSource == UMLScene.ROT_270) {
-			startCoord[0] += HEIGHT / 2;
-		} else {
-			startCoord[1] += HEIGHT / 2;
-		}
+	private void drawDottedConnection(Graphics2D g, int[] startCoord, int[] endCoord, double rotSource, double rotDest) {
+		startCoord = getConnectionAdjustments(startCoord, rotSource);
+		endCoord = getConnectionAdjustments(endCoord, rotDest);
 		
-		if(rotDest == UMLScene.ROT_90) {
-			endCoord[0] -= HEIGHT / 2;
-		} else if(rotDest == UMLScene.ROT_180) {
-			endCoord[1] -= HEIGHT / 2;
-		} else if(rotDest == UMLScene.ROT_270) {
-			endCoord[0] += HEIGHT / 2;
-		} else {
-			endCoord[1] += HEIGHT / 2;
-		}
+		double distance = getDistance(startCoord, endCoord);
+		double numOfSegments = Math.ceil(distance / 10);
+		double xChangePerIt = (endCoord[0] - startCoord[0]) / numOfSegments;
+		double yChangePerIt = (endCoord[1] - startCoord[1]) / numOfSegments;
 		
-		g.drawLine(startCoord[0], startCoord[1], endCoord[0], endCoord[1]);
+		double xLoc = startCoord[0];
+		double yLoc = startCoord[1];
+		for(int i = 0; i < numOfSegments; ++i) {
+			double newX = xLoc + xChangePerIt;
+			double newY = yLoc + yChangePerIt;
+			if(i % 2 == 0) {
+				g.drawLine((int)xLoc, (int)yLoc, (int)newX, (int)newY);
+			}
+			xLoc = newX;
+			yLoc = newY;
+		}
 	}
 	
+	/**
+	 * Draws text at the ends of a relationship, slightly offset from the position
+	 * supplied (which should be the location of the ends of the relationship line)
+	 * 
+	 * @param g the graphics object used for drawing
+	 * @param text the text to draw
+	 * @param x the x position
+	 * @param y the y position
+	 * @param rotation the rotation amount
+	 */
+	private void drawCardinality(Graphics2D g, String text, int x, int y, double rotation) {
+		int size = text.length();//approximate pixel width
+		if(rotation == UMLScene.ROT_90) {
+			g.drawString(text, x - size, y - 10);
+		} else if(rotation == UMLScene.ROT_180) {
+			g.drawString(text, x + 10 - size, y + 12);
+		} else if(rotation == UMLScene.ROT_270) {
+			g.drawString(text, x - 8 - size, y - 10);
+		} else {
+			g.drawString(text, x + 10 - size, y - 12);
+		}
+	}
+	
+	/**
+	 * Gets the appropriate rotation for a given connection based on where
+	 * two class boxes are located.
+	 * 
+	 * @param source source class box
+	 * @param dest destination class box
+	 * @return a rotation constant, which holds the rotation in radians
+	 */
 	private double getRotation(ClassBoxData source, ClassBoxData dest) {
 		int diffX = source.getX() - dest.getX();
 		int diffY = source.getY() - dest.getY();
@@ -233,7 +342,124 @@ public class UMLScene extends JDesktopPane {
 		}
 	}
 	
-	public Dimension getPreferredSize() {
-		return new Dimension(800, 600);
+	/**
+	 * Applies the distance formula to a set of coordinates
+	 * 
+	 * @param startCoord the starting coordinates, (x1, y1)
+	 * @param endCoord the ending coordinates, (x2, y2)
+	 * @return the distance (pixels) between these locations
+	 */
+	private double getDistance(int[] startCoord, int[] endCoord) {
+		double x1 = startCoord[0];
+		double x2 = endCoord[0];
+		double y1 = startCoord[1];
+		double y2 = endCoord[1];
+		
+		return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2- y1), 2));
+	}
+	
+	/**
+	 * Selects the nearest relationship object to the given coordinates. If no 
+	 * relationships are within 10 pixels, nothing is selected.
+	 * 
+	 * @param posX the x position to compare to
+	 * @param posY the y position to compare to
+	 * @return whether an editable relationship was selected
+	 */
+	public boolean selectEditableRelationship(int posX, int posY) {
+		
+		this.editableRelationship = null;
+		
+		int[] position = new int[]{posX, posY};
+		double shortestDistance = 11;
+		
+		for(RelationshipData entry : this.dataManager.getRelationshipData().values()) {
+			double rotS = getRotation(entry.getSourceClassBox(), entry.getDestinationClassBox());
+			double rotD = getRotation(entry.getDestinationClassBox(), entry.getSourceClassBox());
+			int[] startCoord, endCoord;
+			//Get the start and end coordinates for a given relationship
+			switch(entry.getType()) {
+				case RelationshipData.BASIC:
+					startCoord = getClassBoxOffset(polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS);
+					endCoord = getClassBoxOffset(polygons[UMLScene.LINE], entry.getDestinationClassBox(), rotD);
+					break;
+				case RelationshipData.DEPENDENCY:
+					startCoord = getClassBoxOffset(polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS);
+					endCoord = getClassBoxOffset(polygons[UMLScene.ARROW], entry.getDestinationClassBox(), rotD);
+					break;
+				case RelationshipData.AGGREGATION:
+					startCoord = getClassBoxOffset(polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS);
+					endCoord = getClassBoxOffset(polygons[UMLScene.DIAMOND], entry.getDestinationClassBox(), rotD);
+					break;
+				case RelationshipData.COMPOSITION:
+					startCoord = getClassBoxOffset(polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS);
+					endCoord = getClassBoxOffset(polygons[UMLScene.DIAMOND], entry.getDestinationClassBox(), rotD);
+					break;
+				case RelationshipData.GENERALIZATION:
+					startCoord = getClassBoxOffset(polygons[UMLScene.LINE], entry.getSourceClassBox(), rotS);
+					endCoord = getClassBoxOffset(polygons[UMLScene.TRIANGLE], entry.getDestinationClassBox(), rotD);
+					break;
+				default:
+					startCoord = new int[]{0, 0};
+					endCoord = startCoord;
+					break;
+			}
+			
+			//Adjust for rotation
+			startCoord = getConnectionAdjustments(startCoord, rotS);
+			endCoord = getConnectionAdjustments(endCoord, rotD);
+			
+			//In 10 pixel increments, see if we are close
+			double distance = getDistance(startCoord, endCoord);
+			double numOfSegments = Math.ceil(distance / 10);
+			double xChangePerIt = (endCoord[0] - startCoord[0]) / numOfSegments;
+			double yChangePerIt = (endCoord[1] - startCoord[1]) / numOfSegments;
+			
+			double xLoc = startCoord[0];
+			double yLoc = startCoord[1];
+			
+			for(int i = 0; i < numOfSegments; ++i) {
+				double newX = xLoc + xChangePerIt;
+				double newY = yLoc + yChangePerIt;
+				int[] location = {(int) newX, (int) newY};
+				int distanceAway = (int) getDistance(location, position);
+				if(distanceAway < shortestDistance) {
+					this.editableRelationship = entry;
+				}
+				xLoc = newX;
+				yLoc = newY;
+			}
+		}
+		
+		return this.editableRelationship != null;
+	}
+	
+	/**
+	 * Remove the editable relationship from the Data Manager
+	 */
+	public void removeEditableRelationship() {
+		this.dataManager.removeRelationshipData(this.editableRelationship.getSourceClassBox(), 
+												this.editableRelationship.getDestinationClassBox());
+	}
+	
+	/**
+	 * Get the editable relationship object
+	 * 
+	 * @return a Relationship Data object representing the editable relationship
+	 */
+	public RelationshipData getEditableRelationship() {
+		return this.editableRelationship;
+	}
+	
+	/**
+	 * Write the current screen to an image buffer
+	 * @return the current screen as an image buffer
+	 */
+	public BufferedImage getExportImage() {
+		BufferedImage image = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
+		Graphics2D graphics = image.createGraphics();
+		this.paintAll(graphics);
+		
+		return image;
 	}
 }

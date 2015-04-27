@@ -3,23 +3,23 @@ package com.group3.ui.listener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+
 import javax.swing.JPopupMenu;
 
-/**
- * 
- * @author Dave Mengel
- *
- */
-public class MouseEventListener extends MouseAdapter {
+import com.group3.ui.UMLScene;
+
+public class RelationshipMouseEventListener extends MouseAdapter {
 	
 	JPopupMenu popup;
+	UMLScene window;
 	
 	/**
 	 * A MouseEventListener that initiates the right click menu
 	 * @param popupMenu  the menu being generated
 	 */
-    public MouseEventListener(JPopupMenu popupMenu) {
+    public RelationshipMouseEventListener(JPopupMenu popupMenu, UMLScene umlScene) {
         popup = popupMenu;
+        window = umlScene;
     }
 	/**
 	 * @param e The MouseEvent that happens when user right clicks. 
@@ -31,17 +31,19 @@ public class MouseEventListener extends MouseAdapter {
     }
 
     public void mouseReleased(MouseEvent e) {
-        showPopup(e);
+        //showPopup(e);
     }
 	/**
 	 * 
 	 * @param e MouseEvent that initiates the popup menu
 	 */
     private void showPopup(MouseEvent e) {
-        if (e.isPopupTrigger()) {
-            popup.show(e.getComponent(),
-                       e.getX(), e.getY());
-        }
+    	
+    	if(window.selectEditableRelationship(e.getX(), e.getY())) {
+    		popup.show(e.getComponent(),
+    				e.getX(), e.getY());
+    	}
+    	
     }
   
 }

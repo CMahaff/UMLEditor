@@ -21,6 +21,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextArea;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
 
+import org.w3c.dom.NodeList;
+
 import com.group3.ui.listener.ClassBoxListener;
 import com.group3.ui.listener.MouseDragListener;
 import com.group3.ui.listener.MouseEventListener;
@@ -51,7 +53,7 @@ public class ClassBox extends JInternalFrame {
 	public ClassBox(String title, ViewManager viewRef) {
 		super("", true); //JInternalFrame title, resizable
 
-		this.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, Color.BLACK));
+		this.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.BLACK));
 		this.setBackground(Color.GRAY.brighter());
 		this.setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		this.textStack = new Stack<JTextArea>();
@@ -64,7 +66,7 @@ public class ClassBox extends JInternalFrame {
         this.addComponentListener(this.classBoxListener);
 
 		createTitleBox(title);
-		createPopupMenu(viewRef);
+		createPopupMenu();
 		createTextBox();
 		addDrag();
 		
@@ -83,7 +85,7 @@ public class ClassBox extends JInternalFrame {
 	 * Set up the right click context manager
 	 * @param viewRef View Manager reference the class box uses to remove itself when deleted
 	 */
-	private void createPopupMenu(ViewManager viewRef) {
+	private void createPopupMenu() {
         JMenuItem menuItem;
         //Create the popup menu.
         JPopupMenu popup = new JPopupMenu();
@@ -93,12 +95,16 @@ public class ClassBox extends JInternalFrame {
         menuItem = new JMenuItem("Remove Section");
         menuItem.addActionListener(this.classBoxListener);
         popup.add(menuItem);
+        menuItem = new JMenuItem("Change Color");
+        menuItem.addActionListener(this.classBoxListener);
+        popup.add(menuItem);
         menuItem = new JMenuItem("Delete Class Box");
         menuItem.addActionListener(this.classBoxListener);
         popup.add(menuItem);
  
         this.popupListener = new MouseEventListener(popup);
         this.addMouseListener(this.popupListener);
+        
 	}
 	
 	/**
@@ -116,7 +122,7 @@ public class ClassBox extends JInternalFrame {
 		this.titleTextArea.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		this.titlePanel.add(this.titleTextArea);
 		this.titlePanel.setBackground(Color.GRAY.brighter());
-		this.titlePanel.setBorder(BorderFactory.createMatteBorder(0, 0, 4, 0, Color.BLACK));
+		this.titlePanel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, Color.BLACK));
 		
 		this.titlePanel.addFocusListener(this.classBoxListener);
 		this.titlePanel.setCursor(createMoveCursor());
@@ -132,7 +138,7 @@ public class ClassBox extends JInternalFrame {
 	 */
 	public void createTextBox() {
 		JTextArea textArea = new JTextArea();
-		textArea.setBackground(Color.GRAY.brighter());
+		textArea.setBackground(this.getBackground());
 		textArea.setFont(new Font("Times New Roman", Font.PLAIN, 14));
 		textArea.setLineWrap(true);
 		textArea.setWrapStyleWord(true);
@@ -140,7 +146,7 @@ public class ClassBox extends JInternalFrame {
 		if(this.addBorder) {
 			textArea.setBorder(
 					BorderFactory.createCompoundBorder(
-							BorderFactory.createMatteBorder(4, 0, 0, 0, Color.BLACK), 
+							BorderFactory.createMatteBorder(2, 0, 0, 0, Color.BLACK), 
 							BorderFactory.createEmptyBorder(5, 5, 5, 5)
 						)
 					);
@@ -227,27 +233,28 @@ public class ClassBox extends JInternalFrame {
 	/**
 	 * Fill this Class Box with saved data.
 	 * 
-	 * @param data the data to parse
+	 * @param classBox an XML object representing the class box
 	 */
-	public void loadFromTextData(String data) {
-		String[] pieces = data.split(";");
+	public void loadFromXMLData(NodeList classBox) {
+		int posX = Integer.parseInt(classBox.item(1).getTextContent());
+		int posY = Integer.parseInt(classBox.item(3).getTextContent());
+		int width = Integer.parseInt(classBox.item(5).getTextContent());
+		int height = Integer.parseInt(classBox.item(7).getTextContent());
+		Color bgColor = Color.decode(classBox.item(9).getTextContent());
+		String title = classBox.item(11).getTextContent();
 		
-		String[] info = pieces[0].split(" ");
-		int posX = Integer.parseInt(info[0]);
-		int posY = Integer.parseInt(info[1]);
-		int width = Integer.parseInt(info[2]);
-		int height = Integer.parseInt(info[3]);
 		this.setLocation(posX, posY);
 		this.setSize(width, height);
-		this.titleTextArea.setText(pieces[1]);
+		this.setBackground(bgColor);
+		this.titleTextArea.setText(title);
 		
-		for(int i = 2; i < pieces.length; ++i) {
-			if(i > 2) {
+		for(int i = 13; i < classBox.getLength(); i += 2) {
+			if(i > 13) {
 				//first text box already created
 				this.createTextBox();
 			}
 			JTextArea textArea = this.textStack.lastElement();
-			textArea.setText(pieces[i]);
+			textArea.setText(classBox.item(i).getTextContent());
 		}
 	}
 	
@@ -294,6 +301,23 @@ public class ClassBox extends JInternalFrame {
 	 * @param color color to set the border to
 	 */
 	public void setBorderColor(Color color) {
-		this.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, color));
+		this.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, color));
+	}
+	
+	/**
+	 * Sets the background color of this component and its sub-components
+	 */
+	public void setBackground(Color color) {
+		super.setBackground(color);
+		if(this.titleTextArea == null) {
+			//not properly initialized yet
+			return;
+		}
+		this.titlePanel.setBackground(color);
+		this.titleTextArea.setBackground(color);
+		Iterator<JTextArea> area = this.textStack.iterator();
+		while(area.hasNext()) {
+			area.next().setBackground(color);
+		}
 	}
 }

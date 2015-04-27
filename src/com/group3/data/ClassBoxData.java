@@ -1,19 +1,18 @@
 package com.group3.data;
 
 
-
 /**
  * @author Connor Mahaffey
  *         Brady Landis
  */
 public class ClassBoxData {
 	
-	private int posX, posY, width, height;
+	private int posX, posY, width, height, id;
 	private String[] boxes;
+	private String colorCode;
 	
 	/**
 	 * Hold Class Box data for saving, reloading, etc.
-	 * TODO: Have ViewManager update at internals.
 	 * 
 	 * @param id unique id representing this object
 	 * @param posX x position of the ClassBox view
@@ -21,13 +20,15 @@ public class ClassBoxData {
 	 * @param width width of the ClassBox view
 	 * @param height height of the ClassBox view
 	 * @param boxes array of strings representing the text sections of a class box
+	 * @param bgColor the integer representation of the background color of the Class Box view 
 	 */
-	public ClassBoxData(int posX, int posY, int width, int height, String[] boxes) {
+	public ClassBoxData(int posX, int posY, int width, int height, String[] boxes, String bgColorCode) {
 		this.posX = posX;
 		this.posY = posY;
 		this.width = width;
 		this.height = height;
 		this.boxes = boxes;
+		this.colorCode = bgColorCode;
 	}
 	
 	/**
@@ -70,6 +71,20 @@ public class ClassBoxData {
 	}
 	
 	/**
+	 * @return id
+	 */
+	public int getId() {
+		return this.id;
+	}
+	
+	/**
+	 * @return the background color string integer representation
+	 */
+	public String getBackgroundColorCode() {
+		return this.colorCode;
+	}
+	
+	/**
 	 * @param data a string array representing the sections of the Class Box
 	 */
 	public void setBoxes(String[] data) {
@@ -105,24 +120,17 @@ public class ClassBoxData {
 	}
 	
 	/**
-	 * current plan, ---Xpos Ypos width height
-	 *              ---text;
-	 * in the text any semicolon ->;<- will be written as ";"(or "\";\"")
-	 * other symbols will be implemented as necessary
-	 * @return returns a string to be used for saving
+	 * @param id the new id of the Class Box
 	 */
-	// TODO: Block tampering!
-	public String toSave(){
-		String str = this.posX + " " + this.posY + " " + 
-					 this.width + " " + this.height + ";";
-		String saveText = "";
-		for(String box : this.boxes){			
-			//box.replaceAll(";", "\";\"");
-			saveText += box + ";";
-		}
-		
-		str += saveText + "\n;;;\n";
-		return str;
+	public void setId(int id) {
+		this.id = id;
+	}
+	
+	/**
+	 * @param color the new background color code for the view
+	 */
+	public void setBackgroundColorCode(String bgColorCode) {
+		this.colorCode = bgColorCode;
 	}
 	
 	/**

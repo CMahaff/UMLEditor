@@ -3,14 +3,7 @@ package com.group3.test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-
-import org.w3c.dom.NodeList;
-
-import com.group3.Main;
 import com.group3.data.DataManager;
-import com.group3.ui.ClassBox;
-import com.group3.ui.ViewManager;
 
 public class Test {
 	

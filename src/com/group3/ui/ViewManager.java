@@ -275,7 +275,7 @@ public class ViewManager {
 						  JOptionPane.ERROR_MESSAGE);
 			} else {
 				//clear old boxes out
-				this.umlScene.removeAll();
+				this.newUML();
 				
 				//create new class boxes and add them back to the model
 				int maxWidth = 800, maxHeight = 600;
